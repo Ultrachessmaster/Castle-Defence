@@ -1,0 +1,12 @@
+/Users/david/Unity Games/CastleDefence/Temp/bin/Debug/Assembly-CSharp-firstpass.dll.mdb
+/Users/david/Unity Games/CastleDefence/Temp/bin/Debug/Assembly-CSharp-firstpass.dll
+/Users/david/Unity Games/CastleDefence/obj/Debug/Assembly-CSharp-firstpass.dll
+/Users/david/Unity Games/CastleDefence/obj/Debug/Assembly-CSharp-firstpass.dll.mdb
+/Users/david/Unity Games/CastleDefence/Temp/bin/Debug/UnityEngine.dll
+/Users/david/Unity Games/CastleDefence/Temp/bin/Debug/UnityEditor.dll
+/Users/david/Unity Games/CastleDefence/Temp/bin/Debug/UnityEngine.UI.dll
+/Users/david/Unity Games/CastleDefence/Temp/bin/Debug/Mono.Cecil.dll
+/Users/david/Unity Games/CastleDefence/Temp/bin/Debug/Unity.SerializationLogic.dll
+/Users/david/Unity Games/CastleDefence/Temp/bin/Debug/Unity.DataContract.dll
+/Users/david/Unity Games/CastleDefence/Temp/bin/Debug/ICSharpCode.NRefactory.dll
+/Users/david/Unity Games/CastleDefence/Temp/bin/Debug/Unity.CecilTools.dll
