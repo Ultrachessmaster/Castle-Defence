@@ -21,13 +21,15 @@ public class PlayerMovement : MonoBehaviour {
 	bool xposdone = false;
 	bool yposdone = false;
 
+	private bool turnDone = false;
+
 	// Use this for initialization
 	void Start () {
 	
 	}
 	
 	void Update () {
-		if(Input.GetMouseButtonDown (0)) {
+		if(Input.GetMouseButtonDown (0) && GameManager.instance.isPlayerTurn && !turnDone) {
 			calculateVelocity ();
 			if (Vector2.Distance (mousePosition, oldMousePos) == 0) {
 				if (calculateFirstPath (oldMousePos)) {
@@ -39,6 +41,7 @@ public class PlayerMovement : MonoBehaviour {
 			else {
 				ShootArrow (velocity);
 			}
+			turnDone = true;
 		}
 	}
 
@@ -63,6 +66,7 @@ public class PlayerMovement : MonoBehaviour {
 					firstPath = false;
 					xposdone = false;
 					yposdone = false;
+					turnDone = false;
 					GameManager.instance.isPlayerTurn = false;
 				}
 			}
@@ -78,6 +82,7 @@ public class PlayerMovement : MonoBehaviour {
 					secondPath = false;
 					xposdone = false;
 					yposdone = false;
+					turnDone = false;
 					GameManager.instance.isPlayerTurn = false;
 				}
 			}

@@ -44,7 +44,7 @@ public class Enemy : MonoBehaviour {
 
 			if (pf2.Path.Count > 0 && tilesTraveled < blocksToTravel && !playerIsNear) {
 				move ();
-			} else if (tilesTraveled == blocksToTravel) 
+			} else if (tilesTraveled == blocksToTravel || pf2.Path.Count == 0) 
 				turnDone = true;
 
 			if (playerIsNear && !turnDone) {
@@ -83,6 +83,7 @@ public class Enemy : MonoBehaviour {
 		}
 		GameObject partcles = (GameObject)Instantiate (bloodParticles, new Vector3 (transform.position.x + 0.5f, transform.position.y + 0.5f, -5), Quaternion.identity);
 		Destroy (partcles, 5);
+		turnDone = true;
 	}
 
 	public void resetTurn () {

@@ -10,8 +10,6 @@ public class Pathfinder2D : MonoBehaviour
     private static Pathfinder2D instance;
     public static Pathfinder2D Instance { get { return instance; } private set { } }
 
-	private TiledMap tilemap;
-
     //Variables
     private Node[,] Map = null;
     public float Tilesize = 1;
@@ -54,7 +52,6 @@ public class Pathfinder2D : MonoBehaviour
         {
             Tilesize = 1;
         }
-		tilemap = GetComponent <TiledMapGeneration> ().tiledmap;
 		Pathfinder2D.Instance.Create2DMap();
     }
 
@@ -161,7 +158,8 @@ public class Pathfinder2D : MonoBehaviour
                         }
                     }
                 }*/
-				Map[j, i] = new Node (j, i, y, ID, x, 0, tilemap.tiles[j, i].isWalkable);
+				Map[j, i] = new Node (j, i, y, ID, x, 0, GameManager.tiledmap.tiles[j, i].isWalkable);
+				//UnityEngine.Debug.Log ("Node " + j + ", " + i + " isWalkable = " +GameManager.tiledmap.tiles[j, i].isWalkable);
                 //We hit nothing set tile to false
                 /*if (free == true)
                 {
@@ -252,8 +250,9 @@ public class Pathfinder2D : MonoBehaviour
                 if (sortedOpenList.Count == 0)
                 {
                     print("Empty Openlist, closedList");
+					UnityEngine.Debug.LogError ("Unable to find end node. Maybe it isn't reachable?");
                     listMethod.Invoke(new List<Vector3>());
-                    return;
+					return;
                 }
 
                 //Get lowest node and insert it into the closed list
@@ -316,6 +315,7 @@ public class Pathfinder2D : MonoBehaviour
         else
         {
             maxSearchRounds = 0;
+			UnityEngine.Debug.LogError ("Unable to find end node. Maybe it isn't reachable?");
             listMethod.Invoke(new List<Vector3>());
         }
     }

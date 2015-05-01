@@ -21,7 +21,7 @@ public class Arrow : MonoBehaviour {
 	void OnTriggerEnter2D (Collider2D col) {
 		if (col.CompareTag ("Enemy")) {
 			col.GetComponent <Enemy> ().lowerHealth (1);
-			gameObject.SetActive (false); 
+			gameObject.SetActive (false);
 			GameManager.instance.isPlayerTurn = false;
 		}
 	}

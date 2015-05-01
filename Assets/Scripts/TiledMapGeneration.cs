@@ -14,12 +14,12 @@ public class TiledMapGeneration : MonoBehaviour {
 	private int numTilesPerRow;
 	private int numRows;
 
-	public TiledMap tiledmap;
+	public bool isNotMainLayer;
+	private TiledMap tm;
 
 	public bool isStone;
 
 	Color[][] ChopUpTiles () {
-
 
 		Color[][] tiles = new Color[numTilesPerRow * numRows][];
 
@@ -47,11 +47,19 @@ public class TiledMapGeneration : MonoBehaviour {
 		Texture2D texture = new Texture2D (texWidth, textHeight);
 
 		Color[][] tiles = ChopUpTiles ();
-		
-		for (int y = 0; y < size_y; y++) {
-			for (int x = 0; x < size_x; x++) {
-				Color[] p = tiles[tiledmap.getTileTexCoordinatesAt (x, y)[1] * numTilesPerRow + tiledmap.getTileTexCoordinatesAt (x, y)[0]];
-				texture.SetPixels (x * tileResolution, y * tileResolution, tileResolution, tileResolution, p);
+		if (isNotMainLayer) {
+			for (int y = 0; y < size_y; y++) {
+				for (int x = 0; x < size_x; x++) {
+					Color[] p = tiles[tm.getTileTexCoordinatesAt (x, y)[1] * numTilesPerRow + tm.getTileTexCoordinatesAt (x, y)[0]];
+					texture.SetPixels (x * tileResolution, y * tileResolution, tileResolution, tileResolution, p);
+				}
+			}
+		} else {
+			for (int y = 0; y < size_y; y++) {
+				for (int x = 0; x < size_x; x++) {
+					Color[] p = tiles[GameManager.tiledmap.getTileTexCoordinatesAt (x, y)[1] * numTilesPerRow + GameManager.tiledmap.getTileTexCoordinatesAt (x, y)[0]];
+					texture.SetPixels (x * tileResolution, y * tileResolution, tileResolution, tileResolution, p);
+				}
 			}
 		}
 
@@ -71,9 +79,9 @@ public class TiledMapGeneration : MonoBehaviour {
 		} catch {}
 		GameObject collision = new GameObject ("Stone");
 		if(isStone) {
-			for (int x = 0; x < tiledmap.width; x++) {
-				for (int y = 0; y < tiledmap.width; y++) {
-					if(tiledmap.tiles[x,y].type == Tile.castle) {
+			for (int x = 0; x < GameManager.tiledmap.width; x++) {
+				for (int y = 0; y < GameManager.tiledmap.width; y++) {
+					if(GameManager.tiledmap.tiles[x,y].type == Tile.castle) {
 						BoxCollider2D collider =  (BoxCollider2D)collision.AddComponent <BoxCollider2D> ();
 
 						collider.offset = new Vector2 (x * tileSize + tileSize / 2f, y * tileSize + tileSize / 2f);
@@ -88,10 +96,13 @@ public class TiledMapGeneration : MonoBehaviour {
 	}
 
 	public void BuildMesh () {
+		if (isNotMainLayer) {
+			tm = new TiledMap (size_x, size_y, isStone, tileSize);
+		} else {
+			GameManager.tiledmap = new TiledMap (size_x, size_y, isStone, tileSize);
+		}
 
-		tiledmap = new TiledMap (size_x, size_y, isStone, tileSize);
-
-		if (isStone) {
+		if (isStone && !isNotMainLayer) {
 			BuildCollider ();
 		}
 
