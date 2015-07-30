@@ -14,7 +14,7 @@ public class PlayerMovement : MonoBehaviour {
 	public GameObject bloodParticles;
 
 	Vector2 mousePosition;
-	Vector2 oldMousePos;
+	Vector2 cubePos;
 	Vector2 sCubePosition;
 	public float speed;
 	public float accuracy;
@@ -33,13 +33,13 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void Update () {
-		//if (!android) {
+		if (!android) {
 			if(GameManager.instance.isPlayerTurn && !turnDone && !dead) {
 				calculateVelocity ();
 				if (Input.GetMouseButtonDown (0)) {
-					if (calculateFirstPath (oldMousePos)) {
+					if (calculateFirstPath (cubePos)) {
 						firstPath = true;
-					} else if (calculateSecondPath (oldMousePos)) {
+					} else if (calculateSecondPath (cubePos)) {
 						secondPath = true;
 					}
 					turnDone = true;
@@ -50,48 +50,49 @@ public class PlayerMovement : MonoBehaviour {
 				}
 			
 			}
-		/*} else {
+		} else {
 			if(GameManager.instance.isPlayerTurn && !turnDone && !dead) {
-				calculateVelocity ();
 				if (Input.touchCount > 0) {
-
-					if (calculateFirstPath (oldMousePos)) {
+					if (calculateFirstPath (cubePos)) {
 						firstPath = true;
-					} else if (calculateSecondPath (oldMousePos)) {
+					} else if (calculateSecondPath (cubePos)) {
 						secondPath = true;
 					}
 					turnDone = true;
 				}
-				else if (Input.GetMouseButtonDown (1)) {
-					ShootArrow (new Vector2 (velocity.x * arrowSpeed, velocity.y * arrowSpeed));
+				else if (Input.touchCount > 0) {
+					ShootArrow (Camera.main.ScreenPointToRay (Input.touches[0].position).origin);
 					turnDone = true;
 				}
 
 			}
-		}*/
+		}
 	}
 
 	void FixedUpdate () {
-		//if (!android) {
+		if (!android) {
 			sCubePosition = new Vector2 (MouseOver.mouseCoor.x + 0.5f, MouseOver.mouseCoor.y + 0.5f);
 			sCubePosition = new Vector3 (Mathf.Clamp (sCubePosition.x, transform.position.x - 1.5f, transform.position.x + 2.5f),
 				Mathf.Clamp (sCubePosition.y, transform.position.y - 1.5f, transform.position.y + 2.5f), -3f);
 
 			selectionCube.position = sCubePosition;
-		/*} else {
+		} else {
 			if (Input.touchCount > 0) {
-				selectionCube.position = (Vector2)Camera.main.ScreenPointToRay(Input.touches[0].position).origin;
+				sCubePosition = (Vector2)Camera.main.ScreenPointToRay(Input.touches[0].position).origin;
+				sCubePosition = new Vector3 (Mathf.Clamp (sCubePosition.x, transform.position.x - 1.5f, transform.position.x + 2.5f),
+					Mathf.Clamp (sCubePosition.y, transform.position.y - 1.5f, transform.position.y + 2.5f), -3f);
+				selectionCube.position = sCubePosition;
 			}
 		}
 
-		mousePosition = MouseOver.mouseCoor;*/
+		mousePosition = MouseOver.mouseCoor;
 		if (GameManager.instance.isPlayerTurn && !dead) {
 			if (firstPath) {
 				if (!xposdone) {
-					MoveXPlayer (oldMousePos);
+					MoveXPlayer (cubePos);
 				}
 				else if (!yposdone) {
-					MoveYPlayer (oldMousePos);
+					MoveYPlayer (cubePos);
 				} 
 				else {
 					firstPath = false;
@@ -104,10 +105,10 @@ public class PlayerMovement : MonoBehaviour {
 
 			if (secondPath) {
 				if (!yposdone) {
-					MoveYPlayer (oldMousePos);
+					MoveYPlayer (cubePos);
 				}
 				else if (!xposdone) {
-					MoveXPlayer (oldMousePos);
+					MoveXPlayer (cubePos);
 				} 
 				else {
 					secondPath = false;
@@ -140,18 +141,22 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void calculateVelocity () {
-		oldMousePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
-		velocity = oldMousePos - new Vector2(transform.position.x, transform.position.y);
-		if(velocity.x > 0) {
-			velocity.x = 1;
+		if (!android) {
+			cubePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
+			velocity = oldMousePos - new Vector2(transform.position.x, transform.position.y);
+			if(velocity.x > 0) {
+				velocity.x = 1;
+			}
+			else if (velocity.x < 0)
+				velocity.x = -1;
+			if(velocity.y > 0) {
+				velocity.y = 1;
+			}
+			else if (velocity.y < 0)
+				velocity.y = -1;
+		} else {
+			Vector2 cubePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
 		}
-		else if (velocity.x < 0)
-			velocity.x = -1;
-		if(velocity.y > 0) {
-			velocity.y = 1;
-		}
-		else if (velocity.y < 0)
-			velocity.y = -1;
 	}
 
 	bool calculateFirstPath (Vector2 pos) {
