@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: fe6ffc830b73647118c8475baa26dc8e
-timeCreated: 1429829802
+timeCreated: 1437077895
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -10,6 +10,7 @@ TextureImporter:
     21300006: textureatlas_3
     21300008: textureatlas_4
     21300010: textureatlas_5
+    21300012: textureatlas_6
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -33,7 +34,7 @@ TextureImporter:
   cubemapConvolutionExponent: 1.5
   seamlessCubemap: 0
   textureFormat: 4
-  maxTextureSize: 2048
+  maxTextureSize: 1024
   textureSettings:
     filterMode: 0
     aniso: 16
@@ -68,7 +69,7 @@ TextureImporter:
     - name: textureatlas_1
       rect:
         serializedVersion: 2
-        x: 17
+        x: 16
         y: 16
         width: 16
         height: 16
@@ -78,8 +79,8 @@ TextureImporter:
     - name: textureatlas_2
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 32
+        y: 16
         width: 16
         height: 16
       alignment: 6
@@ -88,7 +89,7 @@ TextureImporter:
     - name: textureatlas_3
       rect:
         serializedVersion: 2
-        x: 16
+        x: 0
         y: 0
         width: 16
         height: 16
@@ -98,7 +99,7 @@ TextureImporter:
     - name: textureatlas_4
       rect:
         serializedVersion: 2
-        x: 32
+        x: 16
         y: 0
         width: 16
         height: 16
@@ -108,12 +109,22 @@ TextureImporter:
     - name: textureatlas_5
       rect:
         serializedVersion: 2
-        x: 48
+        x: 32
         y: 0
         width: 16
         height: 16
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: textureatlas_6
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 1
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

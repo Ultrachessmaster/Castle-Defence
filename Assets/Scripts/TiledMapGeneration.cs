@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 [RequireComponent(typeof(MeshFilter))]
@@ -8,6 +8,8 @@ public class TiledMapGeneration : MonoBehaviour {
 	public int size_x = 100;
 	public int size_y = 50;
 	public float tileSize = 1.0f;
+
+	public int sparcityOfStones;
 
 	public Texture2D terrainTiles;
 	public int tileResolution = 16;
@@ -19,57 +21,8 @@ public class TiledMapGeneration : MonoBehaviour {
 
 	public bool isStone;
 
-	Color[][] ChopUpTiles () {
-
-		Color[][] tiles = new Color[numTilesPerRow * numRows][];
-
-		for (int y = 0; y < numRows; y++) {
-			for (int x = 0; x < numTilesPerRow; x++) {
-				tiles[y * numTilesPerRow + x] = terrainTiles.GetPixels (x * tileResolution, y * tileResolution, tileResolution, tileResolution);
-			}
-
-		}
-		return tiles;
-	}
-
 	void Awake () {
 		BuildMesh ();
-	}
-
-	void BuildTexture () {
-	
-		numTilesPerRow = terrainTiles.width / tileResolution;
-		numRows = terrainTiles.height / tileResolution;
-
-		int texWidth = size_x * tileResolution;
-		int textHeight = size_y * tileResolution;
-
-		Texture2D texture = new Texture2D (texWidth, textHeight);
-
-		Color[][] tiles = ChopUpTiles ();
-		if (isNotMainLayer) {
-			for (int y = 0; y < size_y; y++) {
-				for (int x = 0; x < size_x; x++) {
-					Color[] p = tiles[tm.getTileTexCoordinatesAt (x, y)[1] * numTilesPerRow + tm.getTileTexCoordinatesAt (x, y)[0]];
-					texture.SetPixels (x * tileResolution, y * tileResolution, tileResolution, tileResolution, p);
-				}
-			}
-		} else {
-			for (int y = 0; y < size_y; y++) {
-				for (int x = 0; x < size_x; x++) {
-					Color[] p = tiles[GameManager.tiledmap.getTileTexCoordinatesAt (x, y)[1] * numTilesPerRow + GameManager.tiledmap.getTileTexCoordinatesAt (x, y)[0]];
-					texture.SetPixels (x * tileResolution, y * tileResolution, tileResolution, tileResolution, p);
-				}
-			}
-		}
-
-		texture.filterMode = FilterMode.Point;
-		texture.wrapMode = TextureWrapMode.Clamp;
-
-		texture.Apply ();
-
-		MeshRenderer mesh_renderer = GetComponent <MeshRenderer> ();
-		mesh_renderer.sharedMaterials[0].mainTexture = texture;
 	}
 
 	void BuildCollider () {
@@ -97,35 +50,31 @@ public class TiledMapGeneration : MonoBehaviour {
 
 	public void BuildMesh () {
 		if (isNotMainLayer) {
-			tm = new TiledMap (size_x, size_y, isStone, tileSize);
+			tm = new TiledMap (size_x, size_y, isStone, tileSize, sparcityOfStones);
 		} else {
-			GameManager.tiledmap = new TiledMap (size_x, size_y, isStone, tileSize);
+			tm = new TiledMap (size_x, size_y, isStone, tileSize, sparcityOfStones);
+			GameManager.tiledmap = tm;
 		}
 
 		if (isStone && !isNotMainLayer) {
 			BuildCollider ();
 		}
 
-		int numTiles = size_x * size_y;
-		int numTris = numTiles * 2;
+		int tileCount = tm.width * tm.height;
 
-		//int vsize_x = size_x * 2;
-		//int vsize_y = size_y * 2;
+		TileVerts[] verts = new TileVerts[tileCount];
 
-		int numVerts = numTiles * 4;
-
-		Vector3[] vertices = new Vector3[numVerts];
-		Vector3[] normals = new Vector3[numVerts];
-		Vector2[] uv = new Vector2[numVerts];
-		int[] triangles = new int[numTris * 3];
+		Vector3[] vertices = new Vector3[tileCount * 4];
+		Vector3[] normals = new Vector3[tileCount * 4];
+		Vector2[] uv = new Vector2[tileCount * 4];
+		int[] triangles = new int[tileCount * 4 * 6];
 
 		int x, y;
 
-		TileVerts[] verts= new TileVerts[numTiles]; 
-
-		for (y = 0; y < size_y; y++) {
-			for(x = 0; x < size_x; x++) {
-				verts[y * size_x + x] = new TileVerts (new Vector3 (x * tileSize, y * tileSize), tileSize, size_x, size_y); 
+		for (x = 0; x < tm.width; x++) {
+			for(y = 0; y < tm.height; y++) {
+				verts[x * tm.height + y] = new TileVerts (new Vector3 (x * tileSize, y * tileSize), tileSize, 
+					tileResolution, terrainTiles.width, (int)tm[x, y].texCoor.x * tileResolution, (int)tm[x, y].texCoor.y * tileResolution); 
 			}
 		}
 
@@ -138,41 +87,28 @@ public class TiledMapGeneration : MonoBehaviour {
 				a++;
 			}
 		}
-			
-		/*for (y = 0; y < vsize_y; y++) {
-			for(x = 0; x < vsize_x; x++) {
-				vertices[y * vsize_x + x] = new Vector3 (x * tileSize, y * tileSize);
-				normals[y * vsize_x + x] = Vector3.back;
-				uv[y * vsize_x + x] = new Vector2 ((float) x / size_x, (float) y / size_y);
-			}
-		}*/
-		
-		for (y = 0; y < size_y; y++) {
-			for (x = 0; x < size_x; x++) {
-				int squareIndex = y * size_x + x;
+
+		for (x = 0; x < tm.width; x++) {
+			for (y = 0; y < tm.height; y++) {
+				int squareIndex = x * tm.height + y;
 				int triOffset = squareIndex * 6;
-				triangles[triOffset] = (squareIndex) * 4 + 0;
+				triangles[triOffset] = (squareIndex) * 4 + 2;
 				triangles[triOffset + 1] = (squareIndex) * 4 + 3;
-				triangles[triOffset + 2] = (squareIndex) * 4 + 2;
-				triangles[triOffset + 3] = (squareIndex) * 4 + 0;
+				triangles[triOffset + 2] = (squareIndex) * 4 + 0;
+				triangles[triOffset + 3] = (squareIndex) * 4 + 3;
 				triangles[triOffset + 4] = (squareIndex) * 4 + 1;
-				triangles[triOffset + 5] = (squareIndex) * 4 + 3;
+				triangles[triOffset + 5] = (squareIndex) * 4 + 0;
 			}
 		}
 
-
 		Mesh mesh = new Mesh ();
-
 		mesh.vertices = vertices;
 		mesh.triangles = triangles;
 		mesh.normals = normals;
 		mesh.uv = uv;
-
-		mesh.name = isStone.ToString ();
-
 		MeshFilter mesh_filter = GetComponent <MeshFilter> ();
+		MeshRenderer mesh_renderer = GetComponent <MeshRenderer> ();
 		mesh_filter.mesh = mesh;
-
-		BuildTexture ();
+		mesh_renderer.sharedMaterial.mainTexture = terrainTiles;
 	}
 }

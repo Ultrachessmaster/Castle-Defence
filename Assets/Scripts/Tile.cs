@@ -11,39 +11,39 @@ public class Tile {
 	public const string blank = "Blank";
 
 	public string type;
-	public int[] graphicsCoordinate;
+	public Vector2 texCoor;
 	public bool isWalkable;
 
 	public Tile (string type) {
 		this.type = type;
 		if(type == "Grass") {
-			graphicsCoordinate = new int[2] {0,0};
+			texCoor = new Vector2 (0, 0);
 			isWalkable = true;
 		}
 			
 
 		if(type == "Castle") {
-			graphicsCoordinate = new int[2] {1,0};
+			texCoor = new Vector2 (1, 0);
 			isWalkable = false;
 		}
 
 		if(type == "Castlebackground") {
-			graphicsCoordinate = new int[2] {2,0};
+			texCoor = new Vector2 (2, 0);
 			isWalkable = true;
 		}
 
 		if(type == "Fence1") {
-			graphicsCoordinate = new int[2] {0,1};
+			texCoor = new Vector2 (0, 1);
 			isWalkable = false;
 		}
 
 		if(type == "Fence2") {
-			graphicsCoordinate = new int[2] {1,1};
+			texCoor = new Vector2 (1, 1);
 			isWalkable = false;
 		}
 
 		if(type == "Blank") {
-			graphicsCoordinate = new int[2] {4,0};
+			texCoor = new Vector2 (4, 1);
 			isWalkable = false;
 		}
 	}

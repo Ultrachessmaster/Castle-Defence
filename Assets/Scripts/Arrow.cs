@@ -5,6 +5,8 @@ public class Arrow : MonoBehaviour {
 
 	public float distance;
 
+	public PlayerMovement pm;
+
 	Vector2 playerPos;
 
 	void Start () {
@@ -14,6 +16,8 @@ public class Arrow : MonoBehaviour {
 	void Update () {
 		if (Vector2.Distance (playerPos, transform.position) > distance) {
 			gameObject.SetActive (false);
+			//Set pm.turnDone to false because it's already false, and the player needs their turn making abilities back
+			pm.turnDone = false;
 			GameManager.instance.isPlayerTurn = false;
 		}
 	}
@@ -22,6 +26,8 @@ public class Arrow : MonoBehaviour {
 		if (col.CompareTag ("Enemy")) {
 			col.GetComponent <Enemy> ().lowerHealth (1);
 			gameObject.SetActive (false);
+			//Set pm.turnDone to false because it's already false, and the player needs their turn making abilities back
+			pm.turnDone = false;
 			GameManager.instance.isPlayerTurn = false;
 		}
 	}

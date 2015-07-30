@@ -11,7 +11,7 @@ public class Enemy : MonoBehaviour {
 	public int blocksToTravel;
 	public float accuracy;
 	public int health = 2;
-	private bool dead = false;
+	public bool dead { get; private set;}
 
 	private int tilesTraveled = 0;
 
@@ -20,6 +20,7 @@ public class Enemy : MonoBehaviour {
 	private bool playerIsNear;
 
 	private Pathfinding2D pf2;
+	private Pathfinder2D pfdr2;
 	private bool pathNotFound = true;
 
 	public bool turnDone {
@@ -28,35 +29,44 @@ public class Enemy : MonoBehaviour {
 
 	private bool isTurnCalculated;
 
-	void Start () { pf2 = GetComponent <Pathfinding2D> (); }
+	void Start () { pf2 = GetComponent <Pathfinding2D> ();
+					dead = false;							}
 
 	void FixedUpdate () {
-		if(!GameManager.instance.isPlayerTurn && !dead) {
-			if (pathNotFound) {
-				pf2.FindPath (transform.position, goal);
-				pathNotFound = false;
-			}
-			playerIsNear = false;
+		if (pathNotFound) {
+			pf2.FindPath (transform.position, goal);
+			pathNotFound = false;
+		}
+		if(!GameManager.instance.isPlayerTurn && !dead && !turnDone) {
+			
 			if (!isTurnCalculated) {
 				playerIsNear = isPlayerNear ();
 				isTurnCalculated = true;
 			}
 
+			if (GameManager.checkIfEnemyIsAt ((Vector2)transform.position + Vector2.right, null) || GameManager.checkIfEnemyIsAt ((Vector2)transform.position + Vector2.right, null) ||
+				GameManager.checkIfEnemyIsAt ((Vector2)transform.position + Vector2.right + Vector2.up, null) || GameManager.checkIfEnemyIsAt ((Vector2)transform.position - Vector2.right + Vector2.up, null)) {
+				turnDone = true;
+				Debug.Log ("Enemy Next to an Enemy");
+			}
 			if (pf2.Path.Count > 0 && tilesTraveled < blocksToTravel && !playerIsNear) {
 				move ();
 			} else if (tilesTraveled == blocksToTravel || pf2.Path.Count == 0) 
 				turnDone = true;
-
+			if (pf2.Path.Count == 0)
+				GameManager.instance.gameOver ();
 			if (playerIsNear && !turnDone) {
+				Debug.Log ("Attacking Player");
 				GameObject.FindGameObjectWithTag ("Player").GetComponent <PlayerMovement> ().loseHealth (1);
 				turnDone = true;
 			}
 		}
+		else if (dead) turnDone = true;
 	}
 
 	bool isPlayerNear () {
 		playerIsNear = false;
-		if (Vector2.Distance (GameObject.FindGameObjectWithTag ("Player").transform.position, transform.position) <= 1)
+		if (Vector2.Distance (GameObject.FindGameObjectWithTag ("Player").transform.position, transform.position) <= 1.2)
 			playerIsNear = true;
 		return playerIsNear;
 	}
@@ -79,11 +89,12 @@ public class Enemy : MonoBehaviour {
 			dead = true;
 			GetComponent <Animator> ().SetBool ("isDead", true);
 			GetComponent <Collider2D> ().enabled = false;
+			GameManager.areAllEnemiesDead ();
 			Destroy (gameObject, 5);
 		}
 		GameObject partcles = (GameObject)Instantiate (bloodParticles, new Vector3 (transform.position.x + 0.5f, transform.position.y + 0.5f, -5), Quaternion.identity);
 		Destroy (partcles, 5);
-		turnDone = true;
+		turnDone = false;
 	}
 
 	public void resetTurn () {

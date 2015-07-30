@@ -9,11 +9,15 @@ public class TiledMap {
 
 	public Tile[,] tiles;
 
-	public TiledMap (int width, int height, bool isStone, float tileSize) {
+	private int sparOfStones;
+
+	public TiledMap (int width, int height, bool isStone, float tileSize, int sparcityOfStones) {
 		this.width = width;
 		this.height = height;
 
 		tiles = new Tile[width, height];
+
+		sparOfStones = sparcityOfStones;
 
 		if (isStone) {
 			for (int x = 0; x < width; x++) {
@@ -33,18 +37,19 @@ public class TiledMap {
 
 			generateFence ();
 		}
-
+		
 	}
 
 	void generateStones () {
 		for (int x = 1; x < width - 1; x++) {
-			for (int y = 0; y < height; y++) {
-				if (Random.Range (0, 8) == 1) {
+			for (int y = 0; y < height - 3; y++) {
+				if (Random.Range (0, sparOfStones - 1) == 1) {
 					tiles[x,y] = new Tile (Tile.castle);
 				}
 			}
 		}
-		tiles[3, 19] = new Tile (Tile.castle);
+		//Build the castle//
+		/*tiles[3, 19] = new Tile (Tile.castle);
 		tiles[3, 18] = new Tile (Tile.castle);
 		tiles[3, 17] = new Tile (Tile.castle);
 		for (int i = 3; i < 17; i++) {
@@ -59,13 +64,15 @@ public class TiledMap {
 			}
 		}
 		tiles[9, 17] = new Tile (Tile.castlebackground);
-		tiles[10, 17] = new Tile (Tile.castlebackground);
+		tiles[10, 17] = new Tile (Tile.castlebackground);*/
+		//Build the castle//
 
 		for (int x = 8; x < 12; x++) {
 			for (int y = 16; y > 14; y--) {
 				tiles[x, y] = new Tile (Tile.grass);
 			}
 		}
+		tiles[8, 12] = new Tile (Tile.grass);
 	}
 
 	void generateFence () {
@@ -98,8 +105,9 @@ public class TiledMap {
 		tiles[width - 1, height - 4] = new Tile (Tile.fence2);
 	}
 
-	public int[] getTileTexCoordinatesAt (int x, int y) {
-		return tiles[x,y].graphicsCoordinate;
+	public Tile this[int x, int y] {
+		get { return tiles[x, y]; }
+		set { tiles[x, y] = value; }
 	}
 
 }
