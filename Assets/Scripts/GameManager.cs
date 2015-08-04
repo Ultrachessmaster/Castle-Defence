@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour {
 	public float enemyTurnLength;
 	private float enemyTimer;
 	public int level = 1;
+
+	public int seed = 0;
+
 	public static bool playerWon { get; private set; }
 
 	public static bool isGameOver { get; private set; }
@@ -24,6 +27,11 @@ public class GameManager : MonoBehaviour {
 	public static TiledMap tiledmap;
 
 	public static GameManager instance;
+
+	void Awake () {
+		if (seed != 0)
+			Random.seed = seed;
+	}
 
 	void Start () {
 		instance = this;

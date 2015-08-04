@@ -53,7 +53,7 @@ public class Enemy : MonoBehaviour {
 				move ();
 			} else if (tilesTraveled == blocksToTravel || pf2.Path.Count == 0) 
 				turnDone = true;
-			if (pf2.Path.Count == 0)
+			if (Vector2.Distance ((Vector2)transform.position, goal) < 0.1f)
 				GameManager.instance.gameOver ();
 			if (playerIsNear && !turnDone) {
 				Debug.Log ("Attacking Player");

@@ -52,7 +52,7 @@ public class Pathfinder2D : MonoBehaviour
         {
             Tilesize = 1;
         }
-		Pathfinder2D.Instance.Create2DMap(false, null);
+		Pathfinder2D.Instance.Create2DMap();
     }
 
 
@@ -97,7 +97,7 @@ public class Pathfinder2D : MonoBehaviour
     #region map
     //-------------------------------------------------INSTANIATE MAP-----------------------------------------------//
 
-	public void Create2DMap(bool checkEnemy, GameObject enemyToIgnore)
+	public void Create2DMap ()
     {
         //Find positions for start and end of map
         int startX = (int)MapStartPosition.x;
@@ -158,10 +158,11 @@ public class Pathfinder2D : MonoBehaviour
                         }
                     }
                 }*/
-				if (checkEnemy)
-					Map[j, i] = new Node (j, i, y, ID, x, 0, (GameManager.tiledmap.tiles[j, i].isWalkable & GameManager.checkIfEnemyIsAt (new Vector2 (j, i), enemyToIgnore)));
-				else
-					Map[j, i] = new Node (j, i, y, ID, x, 0, GameManager.tiledmap.tiles[j, i].isWalkable);
+				//if (checkEnemy)
+				//	Map[j, i] = new Node (j, i, y, ID, x, 0, (GameManager.tiledmap.tiles[j, i].isWalkable & GameManager.checkIfEnemyIsAt (new Vector2 (j, i), enemyToIgnore)));
+				//else
+				//UnityEngine.Debug.Log ("Tile: " + j + ", " + i + ", " + GameManager.tiledmap[j, i].isWalkable);
+				Map[j, i] = new Node (j, i, y, ID, x, 0, GameManager.tiledmap[j, i].isWalkable);
 				//UnityEngine.Debug.Log ("Node " + j + ", " + i + " isWalkable = " +GameManager.tiledmap.tiles[j, i].isWalkable);
                 //We hit nothing set tile to false
                 /*if (free == true)

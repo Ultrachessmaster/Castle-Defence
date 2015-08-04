@@ -44,28 +44,20 @@ public class TiledMap {
 		for (int x = 1; x < width - 1; x++) {
 			for (int y = 0; y < height - 3; y++) {
 				if (Random.Range (0, sparOfStones - 1) == 1) {
-					tiles[x,y] = new Tile (Tile.castle);
+					int chance = Random.Range (0, 100);
+					if (chance <= 45) {
+						tiles[x, y] = new Tile (Tile.castle);
+						tiles[Mathf.Clamp (x + 1, 1, width - 2), y] = new Tile (Tile.castle);
+					} else if (chance <= 90 && chance > 45) {
+						tiles[x, y] = new Tile (Tile.castle);
+						tiles[x, Mathf.Clamp (y + 1, 1, height - 4)] = new Tile (Tile.castle);
+					} else {
+						tiles[x, y] = new Tile (Tile.castle);
+					}
+					//tiles[x, y] = new Tile (Tile.castle);
 				}
 			}
 		}
-		//Build the castle//
-		/*tiles[3, 19] = new Tile (Tile.castle);
-		tiles[3, 18] = new Tile (Tile.castle);
-		tiles[3, 17] = new Tile (Tile.castle);
-		for (int i = 3; i < 17; i++) {
-			tiles[i,17] = new Tile (Tile.castle);
-		}
-		tiles[16, 19] = new Tile (Tile.castle);
-		tiles[16, 18] = new Tile (Tile.castle);
-		tiles[16, 17] = new Tile (Tile.castle);
-		for (int x = 4; x < 16; x++) {
-			for (int y = 19; y > 17; y--) {
-				tiles[x,y] = new Tile (Tile.castlebackground);
-			}
-		}
-		tiles[9, 17] = new Tile (Tile.castlebackground);
-		tiles[10, 17] = new Tile (Tile.castlebackground);*/
-		//Build the castle//
 
 		for (int x = 8; x < 12; x++) {
 			for (int y = 16; y > 14; y--) {

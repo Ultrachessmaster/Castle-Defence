@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	Vector2 mousePosition;
 	Vector2 cubePos;
-	Vector2 sCubePosition;
+	Vector3 sCubePosition;
 	public float speed;
 	public float accuracy;
 	Vector2 velocity;
@@ -53,14 +53,15 @@ public class PlayerMovement : MonoBehaviour {
 		} else {
 			if(GameManager.instance.isPlayerTurn && !turnDone && !dead) {
 				if (Input.touchCount > 0) {
+					calculateVelocity ();
+					Debug.Log (cubePos);
 					if (calculateFirstPath (cubePos)) {
 						firstPath = true;
 					} else if (calculateSecondPath (cubePos)) {
 						secondPath = true;
 					}
 					turnDone = true;
-				}
-				else if (Input.touchCount > 0) {
+				} else if (Input.touchCount > 0) {
 					ShootArrow (Camera.main.ScreenPointToRay (Input.touches[0].position).origin);
 					turnDone = true;
 				}
@@ -71,7 +72,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	void FixedUpdate () {
 		if (!android) {
-			sCubePosition = new Vector2 (MouseOver.mouseCoor.x + 0.5f, MouseOver.mouseCoor.y + 0.5f);
+			sCubePosition = new Vector3 (MouseOver.mouseCoor.x + 0.5f, MouseOver.mouseCoor.y + 0.5f, -3f);
 			sCubePosition = new Vector3 (Mathf.Clamp (sCubePosition.x, transform.position.x - 1.5f, transform.position.x + 2.5f),
 				Mathf.Clamp (sCubePosition.y, transform.position.y - 1.5f, transform.position.y + 2.5f), -3f);
 
@@ -79,8 +80,8 @@ public class PlayerMovement : MonoBehaviour {
 		} else {
 			if (Input.touchCount > 0) {
 				sCubePosition = (Vector2)Camera.main.ScreenPointToRay(Input.touches[0].position).origin;
-				sCubePosition = new Vector3 (Mathf.Clamp (sCubePosition.x, transform.position.x - 1.5f, transform.position.x + 2.5f),
-					Mathf.Clamp (sCubePosition.y, transform.position.y - 1.5f, transform.position.y + 2.5f), -3f);
+				sCubePosition = new Vector3 (Mathf.Floor (Mathf.Clamp (sCubePosition.x, transform.position.x - 2, transform.position.x + 2)) + 0.5f,
+					Mathf.Floor (Mathf.Clamp (sCubePosition.y, transform.position.y - 2f, transform.position.y + 2f)) + 0.5f, -3f);
 				selectionCube.position = sCubePosition;
 			}
 		}
@@ -143,7 +144,7 @@ public class PlayerMovement : MonoBehaviour {
 	void calculateVelocity () {
 		if (!android) {
 			cubePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
-			velocity = oldMousePos - new Vector2(transform.position.x, transform.position.y);
+			velocity = cubePos - new Vector2(transform.position.x, transform.position.y);
 			if(velocity.x > 0) {
 				velocity.x = 1;
 			}
@@ -155,7 +156,18 @@ public class PlayerMovement : MonoBehaviour {
 			else if (velocity.y < 0)
 				velocity.y = -1;
 		} else {
-			Vector2 cubePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
+			cubePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
+			velocity = cubePos - new Vector2(transform.position.x, transform.position.y);
+			if(velocity.x > 0) {
+				velocity.x = 1;
+			}
+			else if (velocity.x < 0)
+				velocity.x = -1;
+			if(velocity.y > 0) {
+				velocity.y = 1;
+			}
+			else if (velocity.y < 0)
+				velocity.y = -1;
 		}
 	}
 

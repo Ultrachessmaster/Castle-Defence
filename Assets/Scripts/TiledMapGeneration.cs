@@ -52,8 +52,8 @@ public class TiledMapGeneration : MonoBehaviour {
 		if (isNotMainLayer) {
 			tm = new TiledMap (size_x, size_y, isStone, tileSize, sparcityOfStones);
 		} else {
-			tm = new TiledMap (size_x, size_y, isStone, tileSize, sparcityOfStones);
-			GameManager.tiledmap = tm;
+			GameManager.tiledmap = new TiledMap (size_x, size_y, isStone, tileSize, sparcityOfStones);
+			tm = GameManager.tiledmap;
 		}
 
 		if (isStone && !isNotMainLayer) {
