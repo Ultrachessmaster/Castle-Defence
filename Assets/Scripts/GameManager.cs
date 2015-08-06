@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour {
 	public readonly bool playerTurn;
 
 	public GameObject enemy;
+	public GameObject speedyEnemy;
 	public GameObject potion;
 
 	public GameObject[] enemies;
@@ -52,7 +53,7 @@ public class GameManager : MonoBehaviour {
 			for (int j = 0; j < 10 && !placeFound; j++) {
 				int x = Random.Range (1, tiledmap.width - 2);
 				int y = Random.Range (1, tiledmap.width - 12);
-				Tile tile = tiledmap.tiles[x,y];
+				Tile tile = tiledmap[x,y];
 				bool placeIsTaken = false;
 				foreach (int enemyx in placesTakenX) {
 					foreach (int enemyy in placesTakenY) {
@@ -61,8 +62,12 @@ public class GameManager : MonoBehaviour {
 					}
 				}
 				if (tile.isWalkable && !placeIsTaken) {
-					enemies[i] = (GameObject)Instantiate (enemy, new Vector3 (x, y, -4), Quaternion.identity);
-					enemies[i].GetComponent <Enemy> ().health = enemyHealth;
+					if (Random.Range (0, 9) == 0) {
+						enemies[i] = (GameObject)Instantiate (speedyEnemy, new Vector3 (x, y, -4), Quaternion.identity);
+					} else {
+						enemies[i] = (GameObject)Instantiate (enemy, new Vector3 (x, y, -4), Quaternion.identity);
+						enemies[i].GetComponent <Enemy> ().health = enemyHealth;
+					}
 					placesTakenX[i] = x;
 					placesTakenY[i] = y;
 					placeFound = true;

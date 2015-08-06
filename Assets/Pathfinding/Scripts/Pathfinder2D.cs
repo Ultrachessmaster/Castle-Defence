@@ -119,8 +119,8 @@ public class Pathfinder2D : MonoBehaviour
         {
             for (int j = 0; j < width; j++)
             {
-                float x = startX + (j * Tilesize) + (Tilesize / 2); //Position from where we raycast - X
-                float y = startY + (i * Tilesize) + (Tilesize / 2); //Position from where we raycast - Z
+                float x = startX + (j * Tilesize); //Position from where we raycast - X
+                float y = startY + (i * Tilesize); //Position from where we raycast - Z
                 int ID = (i * width) + j; //ID we give to our Node!
 
                 /*float dist = 2000;

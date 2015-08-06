@@ -13,7 +13,6 @@ public class PlayerMovement : MonoBehaviour {
 
 	public GameObject bloodParticles;
 
-	Vector2 mousePosition;
 	Vector2 cubePos;
 	Vector3 sCubePosition;
 	public float speed;
@@ -79,14 +78,16 @@ public class PlayerMovement : MonoBehaviour {
 			selectionCube.position = sCubePosition;
 		} else {
 			if (Input.touchCount > 0) {
-				sCubePosition = (Vector2)Camera.main.ScreenPointToRay(Input.touches[0].position).origin;
-				sCubePosition = new Vector3 (Mathf.Floor (Mathf.Clamp (sCubePosition.x, transform.position.x - 2, transform.position.x + 2)) + 0.5f,
-					Mathf.Floor (Mathf.Clamp (sCubePosition.y, transform.position.y - 2f, transform.position.y + 2f)) + 0.5f, -3f);
-				selectionCube.position = sCubePosition;
+				Vector2 touchPos = (Vector2)Camera.main.ScreenPointToRay(Input.touches[0].position).origin;
+				if (Vector2.Distance (touchPos, (Vector2)transform.position + Vector2.one/2) > 2.5f) {
+					sCubePosition = (Vector2)Camera.main.ScreenPointToRay(Input.touches[0].position).origin;
+					sCubePosition = new Vector3 (Mathf.Floor (Mathf.Clamp (sCubePosition.x, transform.position.x - 2, transform.position.x + 2)) + 0.5f,
+						Mathf.Floor (Mathf.Clamp (sCubePosition.y, transform.position.y - 2f, transform.position.y + 2f)) + 0.5f, -3f);
+					selectionCube.position = sCubePosition;
+				}
 			}
 		}
 
-		mousePosition = MouseOver.mouseCoor;
 		if (GameManager.instance.isPlayerTurn && !dead) {
 			if (firstPath) {
 				if (!xposdone) {
@@ -175,9 +176,9 @@ public class PlayerMovement : MonoBehaviour {
 		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.x - pos.x), 8, -100, 100);
 		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (pos.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.x - pos.x), 8, -100, 100);
 		
-		if (rchx.collider != null)
+		if (rchx)
 			return false;
-		if (rchy.collider != null)
+		if (rchy)
 			return false;
 
 		return true;
@@ -186,9 +187,9 @@ public class PlayerMovement : MonoBehaviour {
 	bool calculateSecondPath (Vector2 pos) {
 		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.y - pos.y), 8, -100, 100);
 		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, pos.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.y - pos.y), 8, -100, 100);
-		if (rchy.collider != null)
+		if (rchy)
 			return false;
-		if (rchx.collider != null)
+		if (rchx)
 			return false;
 
 		//Debug.Log ("Second Path workes, rchx collider is " + rchx.collider + " and rchy collider is " + rchy.collider + " . ");
