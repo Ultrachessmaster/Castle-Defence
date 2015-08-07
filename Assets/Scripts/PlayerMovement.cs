@@ -13,6 +13,8 @@ public class PlayerMovement : MonoBehaviour {
 
 	public GameObject bloodParticles;
 
+	public LayerMask terrain;
+
 	Vector2 cubePos;
 	Vector3 sCubePosition;
 	public float speed;
@@ -35,7 +37,9 @@ public class PlayerMovement : MonoBehaviour {
 		if (!android) {
 			if(GameManager.instance.isPlayerTurn && !turnDone && !dead) {
 				calculateVelocity ();
-				if (Input.GetMouseButtonDown (0)) {
+				if (Input.GetAxis ("Fire1") > 0) {
+					firstPath = false;
+					secondPath = false;
 					if (calculateFirstPath (cubePos)) {
 						firstPath = true;
 					} else if (calculateSecondPath (cubePos)) {
@@ -43,7 +47,7 @@ public class PlayerMovement : MonoBehaviour {
 					}
 					turnDone = true;
 				}
-				else if (Input.GetMouseButtonDown (1)) {
+				else if (Input.GetAxis ("Fire2") > 0) {
 					ShootArrow (new Vector2 (velocity.x * arrowSpeed, velocity.y * arrowSpeed));
 					turnDone = true;
 				}
@@ -173,8 +177,8 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	bool calculateFirstPath (Vector2 pos) {
-		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.x - pos.x), 8, -100, 100);
-		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (pos.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.x - pos.x), 8, -100, 100);
+		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.x - pos.x), terrain);
+		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (pos.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.y - pos.y), terrain);
 		
 		if (rchx)
 			return false;
@@ -185,8 +189,8 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	bool calculateSecondPath (Vector2 pos) {
-		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.y - pos.y), 8, -100, 100);
-		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, pos.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.y - pos.y), 8, -100, 100);
+		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.y - pos.y), terrain);
+		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, pos.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.x - pos.x), terrain);
 		if (rchy)
 			return false;
 		if (rchx)
