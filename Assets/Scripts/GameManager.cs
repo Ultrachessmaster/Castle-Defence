@@ -129,15 +129,14 @@ public class GameManager : MonoBehaviour {
 		return enemiesaredead;
 	}
 
-	public static bool checkIfEnemyIsAt (Vector2 place, GameObject enemyToIgnore) {
+	public static GameObject checkEnemy (Vector2 place) {
 		foreach (GameObject g in GameObject.FindGameObjectsWithTag ("Enemy")) {
-			if (g.Equals (enemyToIgnore)) continue;
 			if (g.GetComponent <Enemy> ().dead) continue;
 			if (Vector2.Distance (place, g.transform.position) < 0.1f) {
-				return true;
+				return g;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	public void gameOver () {

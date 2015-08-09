@@ -12,7 +12,7 @@ public class Enemy : MonoBehaviour {
 	public float accuracy;
 	public int health = 2;
 	public bool dead { get; private set;}
-
+	public bool speedy;
 	private int tilesTraveled = 0;
 
 	public GameObject bloodParticles;
@@ -43,9 +43,11 @@ public class Enemy : MonoBehaviour {
 				playerIsNear = isPlayerNear ();
 				isTurnCalculated = true;
 			}
-
-			if (GameManager.checkIfEnemyIsAt ((Vector2)transform.position + Vector2.right, null) || GameManager.checkIfEnemyIsAt ((Vector2)transform.position + Vector2.right, null) ||
-				GameManager.checkIfEnemyIsAt ((Vector2)transform.position + Vector2.right + Vector2.up, null) || GameManager.checkIfEnemyIsAt ((Vector2)transform.position - Vector2.right + Vector2.up, null)) {
+			GameObject eR = GameManager.checkEnemy ((Vector2)transform.position + Vector2.right);
+			GameObject eU = GameManager.checkEnemy ((Vector2)transform.position + Vector2.up);
+			GameObject eRU = GameManager.checkEnemy ((Vector2)transform.position + Vector2.right + Vector2.up);
+			GameObject eLU = GameManager.checkEnemy ((Vector2)transform.position - Vector2.right + Vector2.up);
+			if ((eR != null || eU != null || eRU != null || eLU != null || eR.GetComponent <Enemy> ().speedy || eU.GetComponent <Enemy> ().speedy || eRU.GetComponent <Enemy> ().speedy || eLU.GetComponent <Enemy> ().speedy) &! speedy) {
 				turnDone = true;
 				Debug.Log ("Enemy Next to an Enemy");
 			}
