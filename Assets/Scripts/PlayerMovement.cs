@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	public Transform selectionCube;
 	public GameObject arrow;
+	public GameObject sword;
 	public float arrowSpeed;
 
 	public int health;
@@ -15,6 +16,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	public LayerMask terrain;
 
+	bool arrowSelected;
 	Vector2 cubePos;
 	Vector3 sCubePosition;
 	public float speed;
@@ -37,35 +39,46 @@ public class PlayerMovement : MonoBehaviour {
 		if (!android) {
 			if(GameManager.instance.isPlayerTurn && !turnDone && !dead) {
 				calculateVelocity ();
-				if (Input.GetAxis ("Fire1") > 0) {
+				if (Input.GetAxis ("Fire1") > 0 && MouseOver.mouseCoor.x > 0) {
 					firstPath = false;
 					secondPath = false;
 					if (calculateFirstPath (cubePos)) {
 						firstPath = true;
+						turnDone = true;
 					} else if (calculateSecondPath (cubePos)) {
 						secondPath = true;
+						turnDone = true;
 					}
-					turnDone = true;
+
 				}
 				else if (Input.GetAxis ("Fire2") > 0) {
-					ShootArrow (new Vector2 (velocity.x * arrowSpeed, velocity.y * arrowSpeed));
+					if (arrowSelected)
+						ShootArrow (velocity * arrowSpeed);
+					else
+						SwingSword (velocity);
 					turnDone = true;
 				}
 			
 			}
 		} else {
+			Vector2 pos = (Vector2)Camera.main.ScreenPointToRay (Input.touches[0].position).origin;
 			if(GameManager.instance.isPlayerTurn && !turnDone && !dead) {
-				if (Input.touchCount > 0) {
+				if (Input.touchCount > 0 && pos.x > 0) {
 					calculateVelocity ();
 					Debug.Log (cubePos);
 					if (calculateFirstPath (cubePos)) {
 						firstPath = true;
+						turnDone = true;
 					} else if (calculateSecondPath (cubePos)) {
 						secondPath = true;
+						turnDone = true;
 					}
-					turnDone = true;
+
 				} else if (Input.touchCount > 0) {
-					ShootArrow (Camera.main.ScreenPointToRay (Input.touches[0].position).origin);
+					if (arrowSelected)
+						ShootArrow (pos);
+					else
+						SwingSword (velocity);
 					turnDone = true;
 				}
 
@@ -139,41 +152,42 @@ public class PlayerMovement : MonoBehaviour {
 		if (velocity.x == 0 && velocity.y < 0) angles.z = 90f;
 		if (velocity.x < 0 && velocity.y == 0) angles.z = 0f;
 		if (velocity.x > 0 && velocity.y == 0) angles.z = -180f;
-
 		arrow.transform.eulerAngles = angles;
-		Debug.Log (velocity);
-		arrow.GetComponent <Arrow> ().pm = this;
+	}
 
+	void SwingSword (Vector2 direction) {
+		sword.transform.position = transform.position + (Vector3)direction + Vector3.one/2;
+		sword.gameObject.SetActive (true);
+		Vector3 angles = sword.transform.eulerAngles;
+		if (velocity.x > 0 && velocity.y > 0) angles.z = -45f;
+		if (velocity.x < 0 && velocity.y > 0) angles.z = 45f;
+		if (velocity.x < 0 && velocity.y < 0) angles.z = 135f;
+		if (velocity.x > 0 && velocity.y < 0) angles.z = -135f;
+		if (velocity.x == 0 && velocity.y > 0) angles.z = 0f;
+		if (velocity.x == 0 && velocity.y < 0) angles.z = 180f;
+		if (velocity.x < 0 && velocity.y == 0) angles.z = 90f;
+		if (velocity.x > 0 && velocity.y == 0) angles.z = -90f;
+		sword.transform.eulerAngles = angles;
+		Invoke ("PutAwaySword", 0.75f);
+	}
+
+	void PutAwaySword () {
+		sword.gameObject.SetActive (false);
+		turnDone = false;
+		GameManager.instance.isPlayerTurn = false;
 	}
 
 	void calculateVelocity () {
-		if (!android) {
-			cubePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
-			velocity = cubePos - new Vector2(transform.position.x, transform.position.y);
-			if(velocity.x > 0) {
-				velocity.x = 1;
-			}
-			else if (velocity.x < 0)
-				velocity.x = -1;
-			if(velocity.y > 0) {
-				velocity.y = 1;
-			}
-			else if (velocity.y < 0)
-				velocity.y = -1;
-		} else {
-			cubePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
-			velocity = cubePos - new Vector2(transform.position.x, transform.position.y);
-			if(velocity.x > 0) {
-				velocity.x = 1;
-			}
-			else if (velocity.x < 0)
-				velocity.x = -1;
-			if(velocity.y > 0) {
-				velocity.y = 1;
-			}
-			else if (velocity.y < 0)
-				velocity.y = -1;
-		}
+		cubePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
+		velocity = cubePos - new Vector2(transform.position.x, transform.position.y);
+		if(velocity.x > 0) 
+			velocity.x = 1;
+		else if (velocity.x < 0)
+			velocity.x = -1;
+		if(velocity.y > 0) 
+			velocity.y = 1;
+		else if (velocity.y < 0)
+			velocity.y = -1;
 	}
 
 	bool calculateFirstPath (Vector2 pos) {
@@ -236,5 +250,9 @@ public class PlayerMovement : MonoBehaviour {
 	public void gainHealth (int healthGained) {
 		health += healthGained;
 		GameObject.Find ("Health").GetComponent <Text> ().text = "x " + health.ToString ();
+	}
+
+	public void setIsArrow (bool value) {
+		arrowSelected = value;
 	}
 }

@@ -18,7 +18,6 @@ public class Enemy : MonoBehaviour {
 	public GameObject bloodParticles;
 
 	private bool playerIsNear;
-
 	private Pathfinding2D pf2;
 	private Pathfinder2D pfdr2;
 	private bool pathNotFound = true;
@@ -47,7 +46,7 @@ public class Enemy : MonoBehaviour {
 			GameObject eU = GameManager.checkEnemy ((Vector2)transform.position + Vector2.up);
 			GameObject eRU = GameManager.checkEnemy ((Vector2)transform.position + Vector2.right + Vector2.up);
 			GameObject eLU = GameManager.checkEnemy ((Vector2)transform.position - Vector2.right + Vector2.up);
-			if ((eR != null || eU != null || eRU != null || eLU != null || eR.GetComponent <Enemy> ().speedy || eU.GetComponent <Enemy> ().speedy || eRU.GetComponent <Enemy> ().speedy || eLU.GetComponent <Enemy> ().speedy) &! speedy) {
+			if ((eR != null || eU != null || eRU != null || eLU != null) &! speedy) {
 				turnDone = true;
 				Debug.Log ("Enemy Next to an Enemy");
 			}
@@ -87,7 +86,7 @@ public class Enemy : MonoBehaviour {
 
 	public void lowerHealth (int healthLost) {
 		health -= healthLost;
-		if (health == 0) {
+		if (health <= 0) {
 			dead = true;
 			GetComponent <Animator> ().SetBool ("isDead", true);
 			GetComponent <Collider2D> ().enabled = false;
@@ -96,7 +95,7 @@ public class Enemy : MonoBehaviour {
 		}
 		GameObject partcles = (GameObject)Instantiate (bloodParticles, new Vector3 (transform.position.x + 0.5f, transform.position.y + 0.5f, -5), Quaternion.identity);
 		Destroy (partcles, 5);
-		turnDone = false;
+		turnDone = true;
 	}
 
 	public void resetTurn () {

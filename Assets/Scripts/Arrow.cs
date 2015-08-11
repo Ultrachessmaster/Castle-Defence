@@ -5,12 +5,13 @@ public class Arrow : MonoBehaviour {
 
 	public float distance;
 
-	public PlayerMovement pm;
+	private PlayerMovement pm;
 
 	Vector2 playerPos;
 
 	void Start () {
 		playerPos = transform.position;
+		pm = GameObject.FindGameObjectWithTag ("Player").GetComponent <PlayerMovement> ();
 	}
 
 	void Update () {
