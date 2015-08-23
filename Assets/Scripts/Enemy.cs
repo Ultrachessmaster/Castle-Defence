@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -11,6 +12,7 @@ public class Enemy : MonoBehaviour {
 	public int blocksToTravel;
 	public float accuracy;
 	public int health = 2;
+	public int maxHealth = 2;
 	public bool dead { get; private set;}
 	public bool speedy;
 	private int tilesTraveled = 0;
@@ -95,7 +97,7 @@ public class Enemy : MonoBehaviour {
 		}
 		GameObject partcles = (GameObject)Instantiate (bloodParticles, new Vector3 (transform.position.x + 0.5f, transform.position.y + 0.5f, -5), Quaternion.identity);
 		Destroy (partcles, 5);
-		turnDone = true;
+		transform.GetChild (0).GetChild (0).GetComponent <Image> ().fillAmount = (float)health/maxHealth;
 	}
 
 	public void resetTurn () {

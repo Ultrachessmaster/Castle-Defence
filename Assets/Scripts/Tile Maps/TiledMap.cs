@@ -34,8 +34,10 @@ public class TiledMap {
 					tiles[x,y] = new Tile (Tile.blank);
 				}
 			}
-
-			generateFence ();
+			for (int y = 0; y < height; y++) {
+				tiles[0,y] = new Tile (Tile.fence1);
+				tiles[width - 1, y] = new Tile (Tile.fence2);
+			}
 		}
 		
 	}
@@ -68,33 +70,7 @@ public class TiledMap {
 	}
 
 	void generateFence () {
-		for (int y = 0; y < height; y++) {
-			int random = Random.Range (0, 2);
-			if (random == 1 || random == 2) {
-				tiles[0,y] = new Tile (Tile.fence1);
-			}
-			random = Random.Range (0, 2);
-			if (random == 1 || random == 2) {
-				tiles[width - 1, y] = new Tile (Tile.fence2);
-			}
-		}
-			
-		tiles[0, 0] = new Tile (Tile.fence1);
-		tiles[0, 1] = new Tile (Tile.fence1);
-		tiles[0, 2] = new Tile (Tile.fence1);
-		tiles[0, 3] = new Tile (Tile.fence1);
-		tiles[0, height - 1] = new Tile (Tile.fence1);
-		tiles[0, height - 2] = new Tile (Tile.fence1);
-		tiles[0, height - 3] = new Tile (Tile.fence1);
-		tiles[0, height - 4] = new Tile (Tile.fence1);
-		tiles[width - 1, 0] = new Tile (Tile.fence2);
-		tiles[width - 1, 1] = new Tile (Tile.fence2);
-		tiles[width - 1, 2] = new Tile (Tile.fence2);
-		tiles[width - 1, 3] = new Tile (Tile.fence2);
-		tiles[width - 1, height - 1] = new Tile (Tile.fence2);
-		tiles[width - 1, height - 2] = new Tile (Tile.fence2);
-		tiles[width - 1, height - 3] = new Tile (Tile.fence2);
-		tiles[width - 1, height - 4] = new Tile (Tile.fence2);
+
 	}
 
 	public Tile this[int x, int y] {

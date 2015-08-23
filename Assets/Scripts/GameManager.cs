@@ -38,12 +38,15 @@ public class GameManager : MonoBehaviour {
 		instance = this;
 		if (PlayerPrefs.GetInt ("Level") == 0)
 			PlayerPrefs.SetInt ("Level", 1);
+		if (PlayerPrefs.GetInt ("health") == 0)
+			PlayerPrefs.SetInt ("health", 2);
 
 		level = PlayerPrefs.GetInt ("Level");
 		PlayerPrefs.Save ();
 		Debug.Log ("Level " + PlayerPrefs.GetInt ("Level"));
 		amountOfEnemies = Mathf.FloorToInt(level/2) + 3;
 		int enemyHealth = (Mathf.FloorToInt (Mathf.Log (level, 4))) + 2;
+		GameObject.Find ("Zombie Health Count").GetComponent <Text> ().text = ": " + enemyHealth.ToString ();
 		enemies = new GameObject[amountOfEnemies];
 
 		int[] placesTakenX = new int[amountOfEnemies];
@@ -67,6 +70,8 @@ public class GameManager : MonoBehaviour {
 					} else {
 						enemies[i] = (GameObject)Instantiate (enemy, new Vector3 (x, y, -4), Quaternion.identity);
 						enemies[i].GetComponent <Enemy> ().health = enemyHealth;
+						enemies[i].GetComponent <Enemy> ().maxHealth = enemyHealth;
+						enemies[i].transform.GetChild (0).GetComponent <Canvas> ().worldCamera = Camera.main;
 					}
 					placesTakenX[i] = x;
 					placesTakenY[i] = y;
@@ -87,9 +92,7 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 
-		
-
-		GameObject.Find ("Level").GetComponent <Text> ().text = "Level " + level.ToString ();
+		GameObject.Find ("Level Number").GetComponent <Text> ().text = "Level " + level.ToString ();
 	}
 
 	void Update () {
@@ -113,7 +116,7 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 		if (Input.GetKey (KeyCode.R)) {
-			PlayerPrefs.SetInt ("Level", 1);
+			PlayerPrefs.DeleteAll ();
 			Application.LoadLevel(Application.loadedLevel);
 		}
 	}
@@ -148,7 +151,11 @@ public class GameManager : MonoBehaviour {
 		PlayerPrefs.SetInt ("Level", PlayerPrefs.GetInt ("Level") + 1);
 		PlayerPrefs.Save ();
 		level++;
-		GameObject.Find ("Level").GetComponent <Text> ().text = "Level " + level.ToString ();
+		GameObject.Find ("Level Number").GetComponent <Text> ().text = "Level " + level.ToString ();
+		GetComponent<Shop> ().showShop ();
+	}
+
+	public void nextLevel () {
 		StartCoroutine (loadLevel (2, "Game"));
 	}
 	 

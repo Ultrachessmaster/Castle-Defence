@@ -162,7 +162,7 @@ public class Pathfinder2D : MonoBehaviour
 				//	Map[j, i] = new Node (j, i, y, ID, x, 0, (GameManager.tiledmap.tiles[j, i].isWalkable & GameManager.checkIfEnemyIsAt (new Vector2 (j, i), enemyToIgnore)));
 				//else
 				//UnityEngine.Debug.Log ("Tile: " + j + ", " + i + ", " + GameManager.tiledmap[j, i].isWalkable);
-				Map[j, i] = new Node (j, i, y, ID, x, 0, GameManager.tiledmap[j, i].isWalkable);
+				Map[j, i] = new Node (j, i, y, ID, x, 0, GameManager.tiledmap[j + startX, i + startY].isWalkable);
 				//UnityEngine.Debug.Log ("Node " + j + ", " + i + " isWalkable = " +GameManager.tiledmap.tiles[j, i].isWalkable);
                 //We hit nothing set tile to false
                 /*if (free == true)

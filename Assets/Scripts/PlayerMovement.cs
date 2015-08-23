@@ -21,11 +21,11 @@ public class PlayerMovement : MonoBehaviour {
 	Vector3 sCubePosition;
 	public float speed;
 	public float accuracy;
-	Vector2 velocity;
 	bool firstPath;
 	bool secondPath;
 	bool xposdone = false;
 	bool yposdone = false;
+	bool touchOffMovement;
 
 	bool android;
 
@@ -33,12 +33,13 @@ public class PlayerMovement : MonoBehaviour {
 
 	void Start () {
 		android = Application.platform == RuntimePlatform.Android;
+		health = PlayerPrefs.GetInt ("health");
 	}
 
 	void Update () {
 		if (!android) {
 			if(GameManager.instance.isPlayerTurn && !turnDone && !dead) {
-				calculateVelocity ();
+				Vector2 velocity = calculateVelocity ();
 				if (Input.GetAxis ("Fire1") > 0 && MouseOver.mouseCoor.x > 0) {
 					firstPath = false;
 					secondPath = false;
@@ -52,19 +53,22 @@ public class PlayerMovement : MonoBehaviour {
 
 				}
 				else if (Input.GetAxis ("Fire2") > 0) {
-					if (arrowSelected)
+					if (arrowSelected) {
 						ShootArrow (velocity * arrowSpeed);
-					else
+						turnDone = true;
+					}
+					else {
 						SwingSword (velocity);
-					turnDone = true;
+						turnDone = true;
+					}
 				}
 			
 			}
 		} else {
 			Vector2 pos = (Vector2)Camera.main.ScreenPointToRay (Input.touches[0].position).origin;
-			if(GameManager.instance.isPlayerTurn && !turnDone && !dead) {
+			if(GameManager.instance.isPlayerTurn && !turnDone && !dead && !touchOffMovement) {
+				Vector2 velocity = calculateVelocity ();
 				if (Input.touchCount > 0 && pos.x > 0) {
-					calculateVelocity ();
 					Debug.Log (cubePos);
 					if (calculateFirstPath (cubePos)) {
 						firstPath = true;
@@ -76,7 +80,7 @@ public class PlayerMovement : MonoBehaviour {
 
 				} else if (Input.touchCount > 0) {
 					if (arrowSelected)
-						ShootArrow (pos);
+						ShootArrow (velocity);
 					else
 						SwingSword (velocity);
 					turnDone = true;
@@ -101,6 +105,9 @@ public class PlayerMovement : MonoBehaviour {
 					sCubePosition = new Vector3 (Mathf.Floor (Mathf.Clamp (sCubePosition.x, transform.position.x - 2, transform.position.x + 2)) + 0.5f,
 						Mathf.Floor (Mathf.Clamp (sCubePosition.y, transform.position.y - 2f, transform.position.y + 2f)) + 0.5f, -3f);
 					selectionCube.position = sCubePosition;
+					touchOffMovement = false;
+				} else {
+					touchOffMovement = true;
 				}
 			}
 		}
@@ -159,6 +166,7 @@ public class PlayerMovement : MonoBehaviour {
 		sword.transform.position = transform.position + (Vector3)direction + Vector3.one/2;
 		sword.gameObject.SetActive (true);
 		Vector3 angles = sword.transform.eulerAngles;
+		Vector2 velocity = calculateVelocity ();
 		if (velocity.x > 0 && velocity.y > 0) angles.z = -45f;
 		if (velocity.x < 0 && velocity.y > 0) angles.z = 45f;
 		if (velocity.x < 0 && velocity.y < 0) angles.z = 135f;
@@ -168,29 +176,18 @@ public class PlayerMovement : MonoBehaviour {
 		if (velocity.x < 0 && velocity.y == 0) angles.z = 90f;
 		if (velocity.x > 0 && velocity.y == 0) angles.z = -90f;
 		sword.transform.eulerAngles = angles;
-		Invoke ("PutAwaySword", 0.75f);
 	}
 
-	void PutAwaySword () {
-		sword.gameObject.SetActive (false);
-		turnDone = false;
-		GameManager.instance.isPlayerTurn = false;
-	}
 
-	void calculateVelocity () {
+	Vector2 calculateVelocity () {
 		cubePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
-		velocity = cubePos - new Vector2(transform.position.x, transform.position.y);
-		if(velocity.x > 0) 
-			velocity.x = 1;
-		else if (velocity.x < 0)
-			velocity.x = -1;
-		if(velocity.y > 0) 
-			velocity.y = 1;
-		else if (velocity.y < 0)
-			velocity.y = -1;
+		Vector2 velocity = cubePos - new Vector2(transform.position.x, transform.position.y);
+		velocity.Normalize ();
+		return velocity;
 	}
 
 	bool calculateFirstPath (Vector2 pos) {
+		Vector2 velocity = calculateVelocity ();
 		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.x - pos.x), terrain);
 		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (pos.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.y - pos.y), terrain);
 		
@@ -203,6 +200,7 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	bool calculateSecondPath (Vector2 pos) {
+		Vector2 velocity = calculateVelocity ();
 		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.y - pos.y), terrain);
 		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, pos.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.x - pos.x), terrain);
 		if (rchy)
@@ -210,13 +208,13 @@ public class PlayerMovement : MonoBehaviour {
 		if (rchx)
 			return false;
 
-		//Debug.Log ("Second Path workes, rchx collider is " + rchx.collider + " and rchy collider is " + rchy.collider + " . ");
-
 		return true;
 	}
 		
 	void MoveXPlayer (Vector2 position) {
 		Rigidbody2D rb2D = GetComponent <Rigidbody2D> ();
+		Vector2 velocity = calculateVelocity ();
+		velocity.Set (Mathf.Sign (velocity.x) * Mathf.Ceil (Mathf.Abs (velocity.x)), Mathf.Sign (velocity.y) * Mathf.Ceil (Mathf.Abs (velocity.y)));
 		rb2D.velocity = new Vector2 (velocity.x * speed, 0);
 		if(Mathf.Abs (transform.position.x - position.x) < accuracy) {
 			rb2D.MovePosition (new Vector2 (position.x, transform.position.y));
@@ -227,6 +225,8 @@ public class PlayerMovement : MonoBehaviour {
 
 	void MoveYPlayer (Vector2 position) {
 		Rigidbody2D rb2D = GetComponent <Rigidbody2D> ();
+		Vector2 velocity = calculateVelocity ();
+		velocity.Set (Mathf.Sign (velocity.x) * Mathf.Ceil (Mathf.Abs (velocity.x)), Mathf.Sign (velocity.y) * Mathf.Ceil (Mathf.Abs (velocity.y)));
 		rb2D.velocity = new Vector2 (0, velocity.y * speed);
 		if(Mathf.Abs (transform.position.y - position.y) < accuracy) {
 			rb2D.MovePosition (new Vector2 (transform.position.x, position.y));
@@ -237,7 +237,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	public void loseHealth (int healthLost) {
 		health -= healthLost;
-		GameObject.Find ("Health").GetComponent <Text> ().text = "x " + health.ToString ();
+		GameObject.Find ("Health Count").GetComponent <Text> ().text = "x " + health.ToString ();
 		GameObject partcles = (GameObject)Instantiate (bloodParticles, new Vector3 (transform.position.x + 0.5f, transform.position.y + 0.5f, -5), Quaternion.identity);
 		Destroy (partcles, 5);
 		if (health == 0) {
@@ -249,7 +249,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	public void gainHealth (int healthGained) {
 		health += healthGained;
-		GameObject.Find ("Health").GetComponent <Text> ().text = "x " + health.ToString ();
+		GameObject.Find ("Health Count").GetComponent <Text> ().text = "x " + health.ToString ();
 	}
 
 	public void setIsArrow (bool value) {
