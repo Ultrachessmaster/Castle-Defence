@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class Shop : MonoBehaviour {
@@ -11,12 +12,21 @@ public class Shop : MonoBehaviour {
 
 	public void showShop () {
 		canvas.SetActive (true);
+		coins += 10;
+		PlayerPrefs.SetInt ("coins", coins);
+		GameObject.Find ("Coins").GetComponent <Text> ().text = ": " + coins.ToString ();
+	}
+
+	void Awake () {
+		coins = PlayerPrefs.GetInt ("coins");
 	}
 
 	public void buyHealth () {
 		if (coins >= healthCost) {
 			coins -= healthCost;
 			PlayerPrefs.SetInt ("health", PlayerPrefs.GetInt ("health") + 1);
+			PlayerPrefs.SetInt ("coins", coins);
+			GameObject.Find ("Coins").GetComponent <Text> ().text = ": " + coins.ToString ();
 		}
 	}
 
@@ -24,6 +34,8 @@ public class Shop : MonoBehaviour {
 		if (coins >= bowLevel2) {
 			coins -= bowLevel2;
 			PlayerPrefs.SetInt ("bowlevel", 2);
+			PlayerPrefs.SetInt ("coins", coins);
+			GameObject.Find ("Coins").GetComponent <Text> ().text = ": " + coins.ToString ();
 		}
 	}
 
@@ -31,6 +43,8 @@ public class Shop : MonoBehaviour {
 		if (coins >= swordLevel2) {
 			coins -= swordLevel2;
 			PlayerPrefs.SetInt ("swordlevel", 2);
+			PlayerPrefs.SetInt ("coins", coins);
+			GameObject.Find ("Coins").GetComponent <Text> ().text = ": " + coins.ToString ();
 		}
 	}
 }

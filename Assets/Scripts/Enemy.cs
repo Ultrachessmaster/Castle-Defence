@@ -50,7 +50,6 @@ public class Enemy : MonoBehaviour {
 			GameObject eLU = GameManager.checkEnemy ((Vector2)transform.position - Vector2.right + Vector2.up);
 			if ((eR != null || eU != null || eRU != null || eLU != null) &! speedy) {
 				turnDone = true;
-				Debug.Log ("Enemy Next to an Enemy");
 			}
 			if (pf2.Path.Count > 0 && tilesTraveled < blocksToTravel && !playerIsNear) {
 				move ();
@@ -59,7 +58,6 @@ public class Enemy : MonoBehaviour {
 			if (Vector2.Distance ((Vector2)transform.position, goal) < 0.1f)
 				GameManager.instance.gameOver ();
 			if (playerIsNear && !turnDone) {
-				Debug.Log ("Attacking Player");
 				GameObject.FindGameObjectWithTag ("Player").GetComponent <PlayerMovement> ().loseHealth (1);
 				turnDone = true;
 			}

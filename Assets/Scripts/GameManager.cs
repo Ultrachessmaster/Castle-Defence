@@ -29,12 +29,9 @@ public class GameManager : MonoBehaviour {
 
 	public static GameManager instance;
 
-	void Awake () {
+	void Start () {
 		if (seed != 0)
 			Random.seed = seed;
-	}
-
-	void Start () {
 		instance = this;
 		if (PlayerPrefs.GetInt ("Level") == 0)
 			PlayerPrefs.SetInt ("Level", 1);
@@ -43,56 +40,45 @@ public class GameManager : MonoBehaviour {
 
 		level = PlayerPrefs.GetInt ("Level");
 		PlayerPrefs.Save ();
-		Debug.Log ("Level " + PlayerPrefs.GetInt ("Level"));
+	}
+
+	void Awake () {
 		amountOfEnemies = Mathf.FloorToInt(level/2) + 3;
 		int enemyHealth = (Mathf.FloorToInt (Mathf.Log (level, 4))) + 2;
-		GameObject.Find ("Zombie Health Count").GetComponent <Text> ().text = ": " + enemyHealth.ToString ();
+
 		enemies = new GameObject[amountOfEnemies];
 
 		int[] placesTakenX = new int[amountOfEnemies];
 		int[] placesTakenY = new int[amountOfEnemies];
+		List <Vector2> places = new List<Vector2> ();
+		int placesWalkable = 0;
+		for (int x = 1; x < tiledmap.width - 2; x++) {
+			for (int y = 1; y < tiledmap.height - 12; y++) {
+				if (tiledmap[x, y].isWalkable)
+					places.Add (new Vector2 (x, y));
+			}
+		}
 		for (int i = 0; i < amountOfEnemies; i++) {
-			bool placeFound = false;
-			for (int j = 0; j < 10 && !placeFound; j++) {
-				int x = Random.Range (1, tiledmap.width - 2);
-				int y = Random.Range (1, tiledmap.width - 12);
-				Tile tile = tiledmap[x,y];
-				bool placeIsTaken = false;
-				foreach (int enemyx in placesTakenX) {
-					foreach (int enemyy in placesTakenY) {
-						if (x == enemyx && y == enemyy)
-							placeIsTaken = true;
-					}
-				}
-				if (tile.isWalkable && !placeIsTaken) {
-					if (Random.Range (0, 9) == 0) {
-						enemies[i] = (GameObject)Instantiate (speedyEnemy, new Vector3 (x, y, -4), Quaternion.identity);
-					} else {
-						enemies[i] = (GameObject)Instantiate (enemy, new Vector3 (x, y, -4), Quaternion.identity);
-						enemies[i].GetComponent <Enemy> ().health = enemyHealth;
-						enemies[i].GetComponent <Enemy> ().maxHealth = enemyHealth;
-						enemies[i].transform.GetChild (0).GetComponent <Canvas> ().worldCamera = Camera.main;
-					}
-					placesTakenX[i] = x;
-					placesTakenY[i] = y;
-					placeFound = true;
-				}
-			}
-			if (!placeFound) {
-				Debug.Log ("Place for Enemy " + i + " not found. Giving up.");
+			int j = i + Random.Range (0, places.Count - i);
+			Vector2 tmp = places[i];
+			places[i] = places[j];
+			places[j] = tmp;
+			if (Random.Range (0, 9) == 0) {
+				enemies[i] = (GameObject)Instantiate (speedyEnemy, places[i], Quaternion.identity);
+				enemies[i].GetComponent <Enemy> ().maxHealth = 1;
+				enemies[i].transform.GetChild (0).GetComponent <Canvas> ().worldCamera = Camera.main;
+			} else {
+				enemies[i] = (GameObject)Instantiate (enemy, places[i], Quaternion.identity);
+				enemies[i].GetComponent <Enemy> ().health = enemyHealth;
+				enemies[i].GetComponent <Enemy> ().maxHealth = enemyHealth;
+				enemies[i].transform.GetChild (0).GetComponent <Canvas> ().worldCamera = Camera.main;
 			}
 		}
-		bool placeForPotionFound = false;
-		while (!placeForPotionFound) {
-			int potionX = Random.Range (2, tiledmap.width - 2);
-			int potionY = Random.Range (2, tiledmap.height - 5);
-			if (tiledmap.tiles [potionX, potionY].type == Tile.grass) {
-				Instantiate (potion, new Vector3 (potionX, potionY, 0), Quaternion.identity);
-				placeForPotionFound = true;
-			}
-		}
-
+		Vector2 place = places[amountOfEnemies + Random.Range (0, places.Count - amountOfEnemies)];
+		Instantiate (potion, place, Quaternion.identity);
+		GameObject.Find ("Zombie Health Count").GetComponent <Text> ().text = ": " + enemyHealth.ToString ();
 		GameObject.Find ("Level Number").GetComponent <Text> ().text = "Level " + level.ToString ();
+		GameObject.Find ("Health Count").GetComponent <Text> ().text = "x " + PlayerPrefs.GetInt ("health").ToString ();
 	}
 
 	void Update () {

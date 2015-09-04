@@ -18,7 +18,6 @@ public class PlayerMovement : MonoBehaviour {
 
 	bool arrowSelected;
 	Vector2 cubePos;
-	Vector3 sCubePosition;
 	public float speed;
 	public float accuracy;
 	bool firstPath;
@@ -39,20 +38,23 @@ public class PlayerMovement : MonoBehaviour {
 	void Update () {
 		if (!android) {
 			if(GameManager.instance.isPlayerTurn && !turnDone && !dead) {
-				Vector2 velocity = calculateVelocity ();
-				if (Input.GetAxis ("Fire1") > 0 && MouseOver.mouseCoor.x > 0) {
+
+				if (Input.GetAxis ("Fire1") > 0 && MouseOver.isOverTile) {
+					setCubePos ();
 					firstPath = false;
 					secondPath = false;
-					if (calculateFirstPath (cubePos)) {
+					if (calculateFirstPath ()) {
 						firstPath = true;
 						turnDone = true;
-					} else if (calculateSecondPath (cubePos)) {
+					} else if (calculateSecondPath ()) {
 						secondPath = true;
 						turnDone = true;
 					}
 
 				}
 				else if (Input.GetAxis ("Fire2") > 0) {
+					setCubePos ();
+					Vector2 velocity = calculateVelocity ();
 					if (arrowSelected) {
 						ShootArrow (velocity * arrowSpeed);
 						turnDone = true;
@@ -65,20 +67,21 @@ public class PlayerMovement : MonoBehaviour {
 			
 			}
 		} else {
-			Vector2 pos = (Vector2)Camera.main.ScreenPointToRay (Input.touches[0].position).origin;
 			if(GameManager.instance.isPlayerTurn && !turnDone && !dead && !touchOffMovement) {
-				Vector2 velocity = calculateVelocity ();
-				if (Input.touchCount > 0 && pos.x > 0) {
-					Debug.Log (cubePos);
-					if (calculateFirstPath (cubePos)) {
+
+				if (Input.touchCount > 0 && MouseOver.isOverTile) {
+					setCubePos ();
+					if (calculateFirstPath ()) {
 						firstPath = true;
 						turnDone = true;
-					} else if (calculateSecondPath (cubePos)) {
+					} else if (calculateSecondPath ()) {
 						secondPath = true;
 						turnDone = true;
 					}
 
 				} else if (Input.touchCount > 0) {
+					setCubePos ();
+					Vector2 velocity = calculateVelocity ();
 					if (arrowSelected)
 						ShootArrow (velocity);
 					else
@@ -91,6 +94,7 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
+		Vector3 sCubePosition;
 		if (!android) {
 			sCubePosition = new Vector3 (MouseOver.mouseCoor.x + 0.5f, MouseOver.mouseCoor.y + 0.5f, -3f);
 			sCubePosition = new Vector3 (Mathf.Clamp (sCubePosition.x, transform.position.x - 1.5f, transform.position.x + 2.5f),
@@ -105,9 +109,9 @@ public class PlayerMovement : MonoBehaviour {
 					sCubePosition = new Vector3 (Mathf.Floor (Mathf.Clamp (sCubePosition.x, transform.position.x - 2, transform.position.x + 2)) + 0.5f,
 						Mathf.Floor (Mathf.Clamp (sCubePosition.y, transform.position.y - 2f, transform.position.y + 2f)) + 0.5f, -3f);
 					selectionCube.position = sCubePosition;
-					touchOffMovement = false;
-				} else {
 					touchOffMovement = true;
+				} else {
+					touchOffMovement = false;
 				}
 			}
 		}
@@ -166,30 +170,31 @@ public class PlayerMovement : MonoBehaviour {
 		sword.transform.position = transform.position + (Vector3)direction + Vector3.one/2;
 		sword.gameObject.SetActive (true);
 		Vector3 angles = sword.transform.eulerAngles;
-		Vector2 velocity = calculateVelocity ();
-		if (velocity.x > 0 && velocity.y > 0) angles.z = -45f;
-		if (velocity.x < 0 && velocity.y > 0) angles.z = 45f;
-		if (velocity.x < 0 && velocity.y < 0) angles.z = 135f;
-		if (velocity.x > 0 && velocity.y < 0) angles.z = -135f;
-		if (velocity.x == 0 && velocity.y > 0) angles.z = 0f;
-		if (velocity.x == 0 && velocity.y < 0) angles.z = 180f;
-		if (velocity.x < 0 && velocity.y == 0) angles.z = 90f;
-		if (velocity.x > 0 && velocity.y == 0) angles.z = -90f;
+		if (direction.x > 0 && direction.y > 0) angles.z = -45f;
+		if (direction.x < 0 && direction.y > 0) angles.z = 45f;
+		if (direction.x < 0 && direction.y < 0) angles.z = 135f;
+		if (direction.x > 0 && direction.y < 0) angles.z = -135f;
+		if (direction.x == 0 && direction.y > 0) angles.z = 0f;
+		if (direction.x == 0 && direction.y < 0) angles.z = 180f;
+		if (direction.x < 0 && direction.y == 0) angles.z = 90f;
+		if (direction.x > 0 && direction.y == 0) angles.z = -90f;
 		sword.transform.eulerAngles = angles;
 	}
 
 
 	Vector2 calculateVelocity () {
-		cubePos = new Vector2 (sCubePosition.x - 0.5f, sCubePosition.y - 0.5f);
-		Vector2 velocity = cubePos - new Vector2(transform.position.x, transform.position.y);
+		Vector2 velocity = cubePos - (Vector2)transform.position;
 		velocity.Normalize ();
 		return velocity;
 	}
+	void setCubePos () {
+		cubePos = new Vector2 (selectionCube.position.x - 0.5f, selectionCube.position.y - 0.5f);
+	}
 
-	bool calculateFirstPath (Vector2 pos) {
+	bool calculateFirstPath () {
 		Vector2 velocity = calculateVelocity ();
-		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.x - pos.x), terrain);
-		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (pos.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.y - pos.y), terrain);
+		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.x - cubePos.x), terrain);
+		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (cubePos.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.y - cubePos.y), terrain);
 		
 		if (rchx)
 			return false;
@@ -199,10 +204,10 @@ public class PlayerMovement : MonoBehaviour {
 		return true;
 	}
 
-	bool calculateSecondPath (Vector2 pos) {
+	bool calculateSecondPath () {
 		Vector2 velocity = calculateVelocity ();
-		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.y - pos.y), terrain);
-		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, pos.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.x - pos.x), terrain);
+		RaycastHit2D rchy = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, transform.position.y + 0.5f), new Vector2 (0, velocity.y), Mathf.Abs (transform.position.y - cubePos.y), terrain);
+		RaycastHit2D rchx = Physics2D.Raycast (new Vector2 (transform.position.x + 0.5f, cubePos.y + 0.5f), new Vector2 (velocity.x, 0), Mathf.Abs (transform.position.x - cubePos.x), terrain);
 		if (rchy)
 			return false;
 		if (rchx)
