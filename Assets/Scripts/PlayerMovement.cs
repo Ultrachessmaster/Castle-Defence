@@ -54,6 +54,8 @@ public class PlayerMovement : MonoBehaviour {
 				}
 				else if (Input.GetAxis ("Fire2") > 0) {
 					setCubePos ();
+					firstPath = false;
+					secondPath = false;
 					Vector2 velocity = calculateVelocity ();
 					if (arrowSelected) {
 						ShootArrow (velocity * arrowSpeed);
@@ -105,13 +107,13 @@ public class PlayerMovement : MonoBehaviour {
 			if (Input.touchCount > 0) {
 				Vector2 touchPos = (Vector2)Camera.main.ScreenPointToRay(Input.touches[0].position).origin;
 				if (Vector2.Distance (touchPos, (Vector2)transform.position + Vector2.one/2) > 2.5f) {
+					touchOffMovement = true;
+				} else {
+					touchOffMovement = false;
 					sCubePosition = (Vector2)Camera.main.ScreenPointToRay(Input.touches[0].position).origin;
 					sCubePosition = new Vector3 (Mathf.Floor (Mathf.Clamp (sCubePosition.x, transform.position.x - 2, transform.position.x + 2)) + 0.5f,
 						Mathf.Floor (Mathf.Clamp (sCubePosition.y, transform.position.y - 2f, transform.position.y + 2f)) + 0.5f, -3f);
 					selectionCube.position = sCubePosition;
-					touchOffMovement = true;
-				} else {
-					touchOffMovement = false;
 				}
 			}
 		}

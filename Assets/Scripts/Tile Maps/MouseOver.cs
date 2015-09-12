@@ -14,11 +14,11 @@ public class MouseOver : MonoBehaviour {
 		if (!android) {
 			Vector2 posit = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 			pos = new Vector2 (Mathf.Floor (posit.x), Mathf.Floor (posit.y));
-			RaycastHit r;
-			Physics.Raycast (posit, Vector3.forward, out r);
+			RaycastHit2D r = Physics2D.Raycast (posit, Vector3.forward);
 			overTile = true;
 			if (r.collider != null) {
-				overTile = !(r.collider.CompareTag ("Gui"));
+				overTile = (!(r.collider.CompareTag ("Gui")));
+				Debug.Log ("Over Tile = " + overTile);
 			}
 		} else {
 			if (Input.touchCount > 0) {

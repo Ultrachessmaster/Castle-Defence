@@ -44,13 +44,13 @@ public class Enemy : MonoBehaviour {
 				playerIsNear = isPlayerNear ();
 				isTurnCalculated = true;
 			}
-			GameObject eR = GameManager.checkEnemy ((Vector2)transform.position + Vector2.right);
+			/*GameObject eR = GameManager.checkEnemy ((Vector2)transform.position + Vector2.right);
 			GameObject eU = GameManager.checkEnemy ((Vector2)transform.position + Vector2.up);
 			GameObject eRU = GameManager.checkEnemy ((Vector2)transform.position + Vector2.right + Vector2.up);
 			GameObject eLU = GameManager.checkEnemy ((Vector2)transform.position - Vector2.right + Vector2.up);
 			if ((eR != null || eU != null || eRU != null || eLU != null) &! speedy) {
 				turnDone = true;
-			}
+			}*/
 			if (pf2.Path.Count > 0 && tilesTraveled < blocksToTravel && !playerIsNear) {
 				move ();
 			} else if (tilesTraveled == blocksToTravel || pf2.Path.Count == 0) 

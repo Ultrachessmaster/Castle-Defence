@@ -14,7 +14,6 @@ public class GameManager : MonoBehaviour {
 	public GameObject potion;
 
 	public GameObject[] enemies;
-	public int amountOfEnemies;
 	public float enemyTurnLength;
 	private float enemyTimer;
 	public int level = 1;
@@ -43,15 +42,11 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Awake () {
-		amountOfEnemies = Mathf.FloorToInt(level/2) + 3;
+		int amountOfEnemies = Mathf.FloorToInt(level/2) + 3;
 		int enemyHealth = (Mathf.FloorToInt (Mathf.Log (level, 4))) + 2;
 
 		enemies = new GameObject[amountOfEnemies];
-
-		int[] placesTakenX = new int[amountOfEnemies];
-		int[] placesTakenY = new int[amountOfEnemies];
 		List <Vector2> places = new List<Vector2> ();
-		int placesWalkable = 0;
 		for (int x = 1; x < tiledmap.width - 2; x++) {
 			for (int y = 1; y < tiledmap.height - 12; y++) {
 				if (tiledmap[x, y].isWalkable)
