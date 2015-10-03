@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour {
 
 	public static GameManager instance;
 
-	void Start () {
+	void Awake () {
 		if (seed != 0)
 			Random.seed = seed;
 		instance = this;
@@ -41,7 +41,7 @@ public class GameManager : MonoBehaviour {
 		PlayerPrefs.Save ();
 	}
 
-	void Awake () {
+	void Start () {
 		int amountOfEnemies = Mathf.FloorToInt(level/2) + 3;
 		int enemyHealth = (Mathf.FloorToInt (Mathf.Log (level, 4))) + 2;
 
@@ -61,11 +61,14 @@ public class GameManager : MonoBehaviour {
 			if (Random.Range (0, 9) == 0) {
 				enemies[i] = (GameObject)Instantiate (speedyEnemy, places[i], Quaternion.identity);
 				enemies[i].GetComponent <Enemy> ().maxHealth = 1;
+				enemies[i].GetComponent <Enemy> ().movementPriority = (i + 1)*amountOfEnemies;
+
 				enemies[i].transform.GetChild (0).GetComponent <Canvas> ().worldCamera = Camera.main;
 			} else {
 				enemies[i] = (GameObject)Instantiate (enemy, places[i], Quaternion.identity);
 				enemies[i].GetComponent <Enemy> ().health = enemyHealth;
 				enemies[i].GetComponent <Enemy> ().maxHealth = enemyHealth;
+				enemies[i].GetComponent <Enemy> ().movementPriority = i;
 				enemies[i].transform.GetChild (0).GetComponent <Canvas> ().worldCamera = Camera.main;
 			}
 		}
@@ -80,6 +83,10 @@ public class GameManager : MonoBehaviour {
 		if (!isPlayerTurn) {
 			bool enemiesAreDone = true;
 			foreach (GameObject g in GameObject.FindGameObjectsWithTag ("Enemy")) {
+				if (g.GetComponent <Enemy> () == null) {
+					Debug.Log ("Broken Enemy Component");
+					continue;
+				}
 				if (!g.GetComponent <Enemy> ().turnDone) {
 					enemiesAreDone = false;
 					enemyTimer += Time.deltaTime;
@@ -92,6 +99,10 @@ public class GameManager : MonoBehaviour {
 				isPlayerTurn = true;
 				enemyTimer = 0;
 				foreach (GameObject g in GameObject.FindGameObjectsWithTag ("Enemy")) {
+					if (g.GetComponent <Enemy> () == null) {
+						Debug.Log ("Broken Enemy Component");
+						continue;
+					}
 					g.GetComponent <Enemy> ().resetTurn ();
 				}
 			}
@@ -100,11 +111,18 @@ public class GameManager : MonoBehaviour {
 			PlayerPrefs.DeleteAll ();
 			Application.LoadLevel(Application.loadedLevel);
 		}
+		if (Input.GetKey (KeyCode.Escape)) {
+			Application.Quit ();
+		}
 	}
 
 	public static bool areAllEnemiesDead () {
 		bool enemiesaredead = true;
 		foreach (GameObject g in GameObject.FindGameObjectsWithTag ("Enemy")) {
+			if (g.GetComponent <Enemy> () == null) {
+				Debug.Log ("Broken Enemy Component");
+				continue;
+			}
 			if (!g.GetComponent <Enemy> ().dead) enemiesaredead = false;
 		}
 		playerWon = enemiesaredead;
@@ -115,6 +133,7 @@ public class GameManager : MonoBehaviour {
 
 	public static GameObject checkEnemy (Vector2 place) {
 		foreach (GameObject g in GameObject.FindGameObjectsWithTag ("Enemy")) {
+			if (g == null) continue;
 			if (g.GetComponent <Enemy> ().dead) continue;
 			if (Vector2.Distance (place, g.transform.position) < 0.1f) {
 				return g;
@@ -125,6 +144,8 @@ public class GameManager : MonoBehaviour {
 
 	public void gameOver () {
 		isGameOver = true;
+		GetComponent <Shop> ().coins += 5;
+		PlayerPrefs.SetInt ("coins", GetComponent <Shop> ().coins);
 		StartCoroutine (loadLevel (2, "Game Over"));
 	}
 
@@ -137,7 +158,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void nextLevel () {
-		StartCoroutine (loadLevel (2, "Game"));
+		Application.LoadLevel ("Game");
 	}
 	 
 	IEnumerator loadLevel (float time, string level) {

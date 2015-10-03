@@ -37,9 +37,9 @@ public class Pathfinding2D : MonoBehaviour
     {
         if (path == null)
         {
+			Destroy (gameObject);
             return;
         }
-
         if (!JS)
         {
             Path.Clear();

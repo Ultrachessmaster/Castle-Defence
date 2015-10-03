@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+
 using UnityEngine.UI;
 using System.Collections;
 
@@ -6,7 +7,9 @@ public class PlayerMovement : MonoBehaviour {
 
 	public Transform selectionCube;
 	public GameObject arrow;
+	public GameObject megaArrow;
 	public GameObject sword;
+	public GameObject megaSword;
 	public float arrowSpeed;
 
 	public int health;
@@ -17,6 +20,8 @@ public class PlayerMovement : MonoBehaviour {
 	public LayerMask terrain;
 
 	bool arrowSelected;
+	bool isMegaArrow;
+	bool isMegaSword;
 	Vector2 cubePos;
 	public float speed;
 	public float accuracy;
@@ -33,6 +38,8 @@ public class PlayerMovement : MonoBehaviour {
 	void Start () {
 		android = Application.platform == RuntimePlatform.Android;
 		health = PlayerPrefs.GetInt ("health");
+		isMegaArrow = PlayerPrefs.GetInt ("bowlevel") == 2;
+		isMegaSword = PlayerPrefs.GetInt ("swordlevel") == 2;
 	}
 
 	void Update () {
@@ -58,11 +65,11 @@ public class PlayerMovement : MonoBehaviour {
 					secondPath = false;
 					Vector2 velocity = calculateVelocity ();
 					if (arrowSelected) {
-						ShootArrow (velocity * arrowSpeed);
+						ShootArrow (velocity * arrowSpeed, isMegaArrow);
 						turnDone = true;
 					}
 					else {
-						SwingSword (velocity);
+						SwingSword (velocity, isMegaSword);
 						turnDone = true;
 					}
 				}
@@ -85,9 +92,9 @@ public class PlayerMovement : MonoBehaviour {
 					setCubePos ();
 					Vector2 velocity = calculateVelocity ();
 					if (arrowSelected)
-						ShootArrow (velocity);
+						ShootArrow (velocity * arrowSpeed, isMegaArrow);
 					else
-						SwingSword (velocity);
+						SwingSword (velocity, isMegaSword);
 					turnDone = true;
 				}
 
@@ -153,8 +160,14 @@ public class PlayerMovement : MonoBehaviour {
 		}
 	}
 
-	void ShootArrow (Vector2 velocity) {
-		GameObject arrow = (GameObject) Instantiate (this.arrow, new Vector3 (transform.position.x + 0.5f, transform.position.y + 0.5f, transform.position.z - 1f), Quaternion.identity);
+	void ShootArrow (Vector2 velocity, bool isMega) {
+		GameObject arrow;
+		if (!isMega) {
+			arrow = (GameObject) Instantiate (this.arrow, new Vector3 (transform.position.x + 0.5f, transform.position.y + 0.5f, transform.position.z - 1f), Quaternion.identity);
+		}
+		else {
+			arrow = (GameObject) Instantiate (megaArrow, new Vector3 (transform.position.x + 0.5f, transform.position.y + 0.5f, transform.position.z - 1f), Quaternion.identity);
+		}
 		arrow.GetComponent <Rigidbody2D> ().velocity = velocity;
 		Vector3 angles = arrow.transform.eulerAngles;
 		if (velocity.x > 0 && velocity.y > 0) angles.z = -135f;
@@ -166,21 +179,39 @@ public class PlayerMovement : MonoBehaviour {
 		if (velocity.x < 0 && velocity.y == 0) angles.z = 0f;
 		if (velocity.x > 0 && velocity.y == 0) angles.z = -180f;
 		arrow.transform.eulerAngles = angles;
+
+		//Do the turn into mega arrow thing here
 	}
 
-	void SwingSword (Vector2 direction) {
-		sword.transform.position = transform.position + (Vector3)direction + Vector3.one/2;
-		sword.gameObject.SetActive (true);
-		Vector3 angles = sword.transform.eulerAngles;
-		if (direction.x > 0 && direction.y > 0) angles.z = -45f;
-		if (direction.x < 0 && direction.y > 0) angles.z = 45f;
-		if (direction.x < 0 && direction.y < 0) angles.z = 135f;
-		if (direction.x > 0 && direction.y < 0) angles.z = -135f;
-		if (direction.x == 0 && direction.y > 0) angles.z = 0f;
-		if (direction.x == 0 && direction.y < 0) angles.z = 180f;
-		if (direction.x < 0 && direction.y == 0) angles.z = 90f;
-		if (direction.x > 0 && direction.y == 0) angles.z = -90f;
-		sword.transform.eulerAngles = angles;
+	void SwingSword (Vector2 direction, bool isMegaSword) {
+		if (!isMegaSword) {
+			sword.transform.position = (transform.position + (Vector3)direction + Vector3.one/2);
+			sword.gameObject.SetActive (true);
+			Vector3 angles = sword.transform.eulerAngles;
+			if (direction.x > 0 && direction.y > 0) angles.z = -45f;
+			if (direction.x < 0 && direction.y > 0) angles.z = 45f;
+			if (direction.x < 0 && direction.y < 0) angles.z = 135f;
+			if (direction.x > 0 && direction.y < 0) angles.z = -135f;
+			if (direction.x == 0 && direction.y > 0) angles.z = 0f;
+			if (direction.x == 0 && direction.y < 0) angles.z = 180f;
+			if (direction.x < 0 && direction.y == 0) angles.z = 90f;
+			if (direction.x > 0 && direction.y == 0) angles.z = -90f;
+			sword.transform.eulerAngles = angles;
+		} else {
+			megaSword.transform.position = (transform.position + (Vector3)direction + Vector3.one/2);
+			megaSword.gameObject.SetActive (true);
+			Vector3 angles = megaSword.transform.eulerAngles;
+			if (direction.x > 0 && direction.y > 0) angles.z = -45f;
+			if (direction.x < 0 && direction.y > 0) angles.z = 45f;
+			if (direction.x < 0 && direction.y < 0) angles.z = 135f;
+			if (direction.x > 0 && direction.y < 0) angles.z = -135f;
+			if (direction.x == 0 && direction.y > 0) angles.z = 0f;
+			if (direction.x == 0 && direction.y < 0) angles.z = 180f;
+			if (direction.x < 0 && direction.y == 0) angles.z = 90f;
+			if (direction.x > 0 && direction.y == 0) angles.z = -90f;
+			megaSword.transform.eulerAngles = angles;
+
+		}
 	}
 
 

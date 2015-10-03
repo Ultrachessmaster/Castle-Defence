@@ -20,8 +20,6 @@ public class Pathfinder2D : MonoBehaviour
     public Vector2 MapStartPosition;
     public Vector2 MapEndPosition;
 
-    public List<string> DisallowedTags;
-    public List<string> IgnoreTags;
     public bool MoveDiagonal = true;
 
     public bool DrawMapInEditor = false;
@@ -97,8 +95,7 @@ public class Pathfinder2D : MonoBehaviour
     #region map
     //-------------------------------------------------INSTANIATE MAP-----------------------------------------------//
 
-	public void Create2DMap ()
-    {
+	public void Create2DMap () {
         //Find positions for start and end of map
         int startX = (int)MapStartPosition.x;
         int startY = (int)MapStartPosition.y;
@@ -115,63 +112,32 @@ public class Pathfinder2D : MonoBehaviour
         SetListsSize(size);
 
         //Fill up Map
-        for (int i = 0; i < height; i++)
-        {
-            for (int j = 0; j < width; j++)
-            {
-                float x = startX + (j * Tilesize); //Position from where we raycast - X
-                float y = startY + (i * Tilesize); //Position from where we raycast - Z
-                int ID = (i * width) + j; //ID we give to our Node!
-
-                /*float dist = 2000;
-
-                RaycastHit[] hit = Physics.SphereCastAll(new Vector3(x, y, zStart), Tilesize / 4, Vector3.forward, dist);
-                bool free = true;
-                float maxZ = Mathf.Infinity;
-
-                foreach (RaycastHit h in hit)
-                {
-					UnityEngine.Debug.Log (h.transform.name + hit.Length);
-                    if (DisallowedTags.Contains(h.transform.tag))
-                    {
-                        if (h.point.z < maxZ)
-                        {
-                            //It is a disallowed walking tile, make it false
-                            Map[j, i] = new Node(j, i, y, ID, x, 0, false); //Non walkable tile!
-                            free = false;
-                            maxZ = h.point.z;
-                        }
-                    }
-                    else if (IgnoreTags.Contains(h.transform.tag))
-                    {
-						UnityEngine.Debug.Log (h.transform.name);
-                        //Do nothing we ignore these tags
-                    }
-                    else
-                    {
-                        if (h.point.z < maxZ)
-                        {
-                            //It is allowed to walk on this tile, make it walkable!
-                            Map[j, i] = new Node(j, i, y, ID, x, h.point.z, true); //walkable tile!
-                            free = false;
-                            maxZ = h.point.z;
-                        }
-                    }
-                }*/
-				//if (checkEnemy)
-				//	Map[j, i] = new Node (j, i, y, ID, x, 0, (GameManager.tiledmap.tiles[j, i].isWalkable & GameManager.checkIfEnemyIsAt (new Vector2 (j, i), enemyToIgnore)));
-				//else
-				//UnityEngine.Debug.Log ("Tile: " + j + ", " + i + ", " + GameManager.tiledmap[j, i].isWalkable);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                float x = startX + (j * Tilesize);
+                float y = startY + (i * Tilesize);
+                int ID = (i * width) + j;
 				Map[j, i] = new Node (j, i, y, ID, x, 0, GameManager.tiledmap[j + startX, i + startY].isWalkable);
-				//UnityEngine.Debug.Log ("Node " + j + ", " + i + " isWalkable = " +GameManager.tiledmap.tiles[j, i].isWalkable);
-                //We hit nothing set tile to false
-                /*if (free == true)
-                {
-					Map[j, i] = new Node(j, i, y, ID, x, 0, true);//Non walkable tile! 
-                }*/
             }
         }
+		for (int i = 17; i < 20; i++) {
+			for (int j = 1; j < 17; j++) {
+				float x = startX + (j * Tilesize);
+				float y = startY + (i * Tilesize);
+				int ID = (i * width) + j;
+				Map[j, i] = new Node (j, i, y, ID, x, 0, false);
+			}
+		}
+		Map[8, 17] = new Node (8, 17, startY + (17 * Tilesize), 17 * width + 8, startX + (8 * Tilesize), 0, true);
     }
+
+	/*public void changeMap (int x, int y, bool walkable) {
+		int startX = (int)MapStartPosition.x;
+		int startY = (int)MapStartPosition.y;
+		int endX = (int)MapEndPosition.x;
+		int width = (int)((endX - startX) / Tilesize);
+		Map[x, y] = new Node (x + startX, y + startY, startY + (y * Tilesize), y * width + x, startX + (x * Tilesize), 0, walkable);
+	}*/
 
     #endregion //End map
 
@@ -230,8 +196,7 @@ public class Pathfinder2D : MonoBehaviour
                     //still no end node - we leave and sends an empty list
                     maxSearchRounds = 0;
 					UnityEngine.Debug.LogError ("Unable to find end node. Maybe it isn't reachable?");
-					listMethod.Invoke(new List<Vector3>());
-
+					listMethod.Invoke(null);
                     return;
                 }
             }
@@ -255,7 +220,7 @@ public class Pathfinder2D : MonoBehaviour
                 {
                     print("Empty Openlist, closedList");
 					UnityEngine.Debug.LogError ("Unable to find end node. Maybe it isn't reachable?");
-                    listMethod.Invoke(new List<Vector3>());
+					listMethod.Invoke(null);
 					return;
                 }
 
@@ -309,6 +274,7 @@ public class Pathfinder2D : MonoBehaviour
                 }
                 if (Vector3.Distance(returnPath[1], startPos) < Vector3.Distance(returnPath[0], returnPath[1]))
                 {
+					UnityEngine.Debug.Log ("sdgsddg");
                     returnPath.RemoveAt(0);
                 }
             }
@@ -320,7 +286,7 @@ public class Pathfinder2D : MonoBehaviour
         {
             maxSearchRounds = 0;
 			UnityEngine.Debug.LogError ("Unable to find end node. Maybe it isn't reachable?");
-            listMethod.Invoke(new List<Vector3>());
+			listMethod.Invoke(null);
         }
     }
 
